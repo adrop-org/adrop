@@ -49,3 +49,13 @@ pub struct Campaign {
     pub created_at: i64,
     pub bump: u8,
 }
+
+#[account]
+#[derive(InitSpace)]
+pub struct Impression {
+    pub campaign: Pubkey,
+    pub nonce_hash: [u8; 32],
+    pub identity: Pubkey,
+    pub paid_at: i64,
+    pub bump: u8,
+}

@@ -27,3 +27,6 @@ spl-token-group-interface = "0.7"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[dev-dependencies]
+serde_json = "1"

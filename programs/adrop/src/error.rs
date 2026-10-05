@@ -22,4 +22,18 @@ pub enum AdropError {
     WrongCampaignStatus,
     #[msg("Escrow holds less than one view's price")]
     EscrowUnderfunded,
+    #[msg("Merkle proof does not prove segment membership")]
+    BadMerkleProof,
+    #[msg("Identity reached the global daily cap")]
+    GlobalCapExceeded,
+    #[msg("Signer is not the configured attester")]
+    NotAttester,
+    #[msg("Fee payer must differ from the attester")]
+    FeePayerIsAttester,
+    #[msg("Identity is not owned by the viewer")]
+    IdentityNotOwned,
+    #[msg("Token account has the wrong mint")]
+    WrongMint,
+    #[msg("Signer is neither the advertiser nor the admin")]
+    Unauthorized,
 }

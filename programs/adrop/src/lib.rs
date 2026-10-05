@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 pub mod error;
 pub mod instructions;
+pub mod merkle;
 pub mod state;
 
 pub use instructions::*;
@@ -41,5 +42,17 @@ pub mod adrop {
 
     pub fn activate_campaign(ctx: Context<ActivateCampaign>) -> Result<()> {
         handle_activate_campaign(ctx)
+    }
+
+    pub fn pay_view(ctx: Context<PayView>, nonce_hash: [u8; 32], merkle_proof: Vec<[u8; 32]>) -> Result<()> {
+        handle_pay_view(ctx, nonce_hash, merkle_proof)
+    }
+
+    pub fn end_campaign(ctx: Context<EndCampaign>) -> Result<()> {
+        handle_end_campaign(ctx)
+    }
+
+    pub fn withdraw_unspent(ctx: Context<WithdrawUnspent>) -> Result<()> {
+        handle_withdraw_unspent(ctx)
     }
 }
