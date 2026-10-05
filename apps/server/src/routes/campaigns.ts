@@ -32,7 +32,9 @@ export function campaignRoutes({ db, chain, x402, usdcMint, baseUrl }: CampaignD
       if (b.budget < b.price_per_view) return res.status(400).json({ error: "budget_below_price" });
       const members = await segmentLeaves(b.tags, db, chain);
       const root = merkleRoot(members.map((m) => m.leaf));
-      const id = (db.prepare("SELECT COALESCE(MAX(id), 0) + 1 AS id FROM campaigns").get() as { id: number }).id;
+      // Next free id: the DB may be fresh while campaigns already exist on-chain.
+      let id = (db.prepare("SELECT COALESCE(MAX(id), 0) + 1 AS id FROM campaigns").get() as { id: number }).id;
+      while (await chain.fetchCampaign(id, mint)) id++;
       const tx = await chain.createCampaign(id, new PublicKey(b.advertiser), root, b.price_per_view, b.min_dwell_ms, b.freq_cap, mint);
       db.prepare(`INSERT INTO campaigns (id, advertiser, tags, price_per_view, min_dwell_ms, freq_cap, budget, creative, segment_root, leaves, status, created_at)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`)
