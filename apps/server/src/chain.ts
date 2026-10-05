@@ -85,9 +85,9 @@ export class Chain {
   }
 
   /** Sends a fully signed tx; returns the signature. Rejects a message that differs from `expectedMessageHash`. */
-  async sendSignedTx(signed_tx_base64: string, expectedMessageHash: string): Promise<string> {
+  async sendSignedTx(signed_tx_base64: string, expectedMessageHash?: string): Promise<string> {
     const tx = Transaction.from(Buffer.from(signed_tx_base64, "base64"));
-    if (Buffer.from(sha256(tx.serializeMessage())).toString("hex") !== expectedMessageHash) throw new Error("transaction does not match the claim");
+    if (expectedMessageHash && Buffer.from(sha256(tx.serializeMessage())).toString("hex") !== expectedMessageHash) throw new Error("transaction does not match the claim");
     if (!tx.verifySignatures(true)) throw new Error("missing or invalid signatures");
     const sig = await this.connection.sendRawTransaction(tx.serialize(), { skipPreflight: false });
     await this.connection.confirmTransaction(sig, "confirmed");

@@ -41,6 +41,7 @@ const chain: ChainLike = {
   identityPda: (mint) => PublicKey.findProgramAddressSync([Buffer.from("identity"), mint.toBytes()], Keypair.generate().publicKey)[0],
   fetchIdentity: async (mint) => registered.has(mint.toBase58()) ? { owner: holder, proofType: 1, viewsToday: 3, lastDay: 0 } : null,
   buildRegisterTx: async (w, m, t) => Buffer.from(`${w.toBase58()}|${m.toBase58()}|${t.toBase58()}`).toString("base64"),
+  sendSignedTx: async (b64) => (b64 === "bad" ? Promise.reject(new Error("nope")) : "reg-tx"),
 };
 const app = createApp({ ...testDeps(), helius: new Helius("http://fake", fakeFetch as any), chain, sgtGroup: GROUP });
 
@@ -68,6 +69,11 @@ describe("identity routes", () => {
     registered.add(SGT_MINT);
     res = await request(app).get(`/identity/${holder}`);
     expect(res.body).toMatchObject({ registered: true, views_today: 3, owner: holder });
+  });
+
+  it("POST /identity/submit sends the signed tx", async () => {
+    expect((await request(app).post("/identity/submit").send({ signed_tx_base64: "AA==" })).body).toEqual({ tx: "reg-tx" });
+    expect((await request(app).post("/identity/submit").send({ signed_tx_base64: "bad" })).status).toBe(400);
   });
 
   it("register-tx 409 when already registered, 404 without SGT", async () => {

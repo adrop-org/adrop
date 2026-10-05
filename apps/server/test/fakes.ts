@@ -40,7 +40,7 @@ export function fakeChain(identities: IdentityRow[] = []) {
     },
     sendSignedTx: async (b64, expected) => {
       const tx = Transaction.from(Buffer.from(b64, "base64"));
-      if (Buffer.from(sha256(tx.serializeMessage())).toString("hex") !== expected) throw new Error("transaction does not match the claim");
+      if (expected && Buffer.from(sha256(tx.serializeMessage())).toString("hex") !== expected) throw new Error("transaction does not match the claim");
       if (!tx.verifySignatures(true)) throw new Error("missing or invalid signatures");
       calls.sendSignedTx.push([b64]);
       return "pay-tx";

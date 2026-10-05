@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { Helius } from "../helius.js";
 import type { ChainLike } from "../chain.js";
 
-export type IdentityDeps = { helius: Pick<Helius, "findSgt">; chain: ChainLike; sgtGroup: string };
+export type IdentityDeps = { helius: Pick<Helius, "findSgt">; chain: Pick<ChainLike, "fetchIdentity" | "buildRegisterTx" | "identityPda" | "sendSignedTx">; sgtGroup: string };
 
 const pubkey = z.string().refine((s) => { try { new PublicKey(s); return true; } catch { return false; } }, "invalid pubkey");
 
@@ -31,6 +31,14 @@ export function identityRoutes({ helius, chain, sgtGroup }: IdentityDeps) {
       if (await chain.fetchIdentity(mint)) return res.status(409).json({ error: "already_registered", sgt_mint: sgt.mint });
       const tx_base64 = await chain.buildRegisterTx(new PublicKey(wallet), mint, new PublicKey(sgt.tokenAccount));
       res.json({ tx_base64, sgt_mint: sgt.mint, identity: chain.identityPda(mint).toBase58() });
+    } catch (e) { next(e); }
+  });
+
+  // The wallet signed the register tx; the server submits it (same as claims: the server always sends).
+  r.post("/identity/submit", async (req, res, next) => {
+    try {
+      const { signed_tx_base64 } = z.object({ signed_tx_base64: z.string().min(1) }).parse(req.body);
+      try { res.json({ tx: await chain.sendSignedTx(signed_tx_base64) }); } catch (e: any) { res.status(400).json({ error: "submit_failed", message: e?.message ?? String(e) }); }
     } catch (e) { next(e); }
   });
 
