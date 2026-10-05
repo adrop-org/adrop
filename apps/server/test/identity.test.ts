@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { Helius } from "../src/helius.js";
 import type { ChainLike } from "../src/chain.js";
+import { testDeps } from "./fakes.js";
 
 const GROUP = "GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te";
 const SGT_MINT = "5mXbkqKz883aufhAsx3p5Z1NcvD2ppZbdTTznM6oUKLj";
@@ -41,7 +42,7 @@ const chain: ChainLike = {
   fetchIdentity: async (mint) => registered.has(mint.toBase58()) ? { owner: holder, proofType: 1, viewsToday: 3, lastDay: 0 } : null,
   buildRegisterTx: async (w, m, t) => Buffer.from(`${w.toBase58()}|${m.toBase58()}|${t.toBase58()}`).toString("base64"),
 };
-const app = createApp({ helius: new Helius("http://fake", fakeFetch as any), chain, sgtGroup: GROUP });
+const app = createApp({ ...testDeps(), helius: new Helius("http://fake", fakeFetch as any), chain, sgtGroup: GROUP });
 
 describe("identity routes", () => {
   it("GET /identity/:wallet without SGT", async () => {

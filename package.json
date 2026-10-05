@@ -11,7 +11,10 @@
     "test:unit": "pnpm -r --if-present test",
     "sgt:mock": "tsx scripts/sgt-mock.ts",
     "idl": "cp target/idl/adrop.json packages/shared/idl/adrop.json && cp target/types/adrop.ts packages/shared/idl/adrop.ts",
-    "devnet:init": "tsx apps/server/scripts/devnet-init.ts"
+    "devnet:init": "tsx apps/server/scripts/devnet-init.ts",
+    "seg:build": "tsx apps/server/scripts/seg-build.ts",
+    "fund:demo": "tsx apps/server/scripts/fund-campaign.ts",
+    "register:demo": "tsx apps/server/scripts/register-demo.ts"
   },
   "dependencies": {
     "@anchor-lang/core": "^1.2.0"

@@ -1,14 +1,16 @@
 import express, { type ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
 import { identityRoutes, type IdentityDeps } from "./routes/identity.js";
+import { campaignRoutes, type CampaignDeps } from "./routes/campaigns.js";
 
-export type AppDeps = IdentityDeps;
+export type AppDeps = IdentityDeps & CampaignDeps;
 
 export function createApp(deps: AppDeps) {
   const app = express();
   app.use(express.json({ limit: "64kb" }));
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use(identityRoutes(deps));
+  app.use(campaignRoutes(deps));
   const onError: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) return res.status(400).json({ error: "bad_request", issues: err.issues });
     console.error(err);
