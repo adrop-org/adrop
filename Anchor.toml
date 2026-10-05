@@ -20,3 +20,11 @@ test = "pnpm exec ts-mocha -p ./tsconfig.json -t 1000000 \"tests/**/*.ts\""
 
 [hooks]
 
+
+[[test.validator.account]]
+address = "5mXbkqKz883aufhAsx3p5Z1NcvD2ppZbdTTznM6oUKLj"
+filename = "tests/fixtures/sgt-mint.json"
+
+[[test.validator.account]]
+address = "2n2cKFq6JhWkdGMPKGiR7xS8yU42u8PR5jAa5S6eimCj"
+filename = "tests/fixtures/sgt-holder-ata.json"
