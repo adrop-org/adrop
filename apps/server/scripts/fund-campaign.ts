@@ -11,7 +11,7 @@ const signer = await createKeyPairSignerFromBytes(Uint8Array.from(JSON.parse(pro
 const paidFetch = wrapFetchWithPaymentFromConfig(fetch, { schemes: [{ network: X402_NETWORK_DEVNET, client: new ExactSvmScheme(signer, { rpcUrl }) }] });
 
 const created = await (await fetch(`${base}/campaigns`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
-  advertiser: advertiser ?? signer.address, tags: ["dex_swap_30d"], price_per_view: 100_000, budget: 1_000_000, freq_cap: Number(process.env.FREQ_CAP ?? 1),
+  advertiser: advertiser ?? signer.address, tags: JSON.parse(process.env.TAGS ?? '["dex_swap_30d"]'), price_per_view: 100_000, budget: 1_000_000, freq_cap: Number(process.env.FREQ_CAP ?? 1),
   creative: { image_url: "https://placehold.co/600x400/png", title: "Try Adrop", cta_url: "https://example.com" },
 }) })).json();
 console.log("created", created);

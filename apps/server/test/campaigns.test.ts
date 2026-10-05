@@ -28,6 +28,13 @@ describe("campaigns", () => {
     expect([id, Buffer.from(root).toString("hex"), price, dwell, cap]).toEqual([1, expected, 100_000, 3000, 1]);
   });
 
+  it("POST /campaigns with no tags is untargeted: root over every registered identity", async () => {
+    const res = await request(app).post("/campaigns").send({ ...body, tags: [] });
+    expect(res.status).toBe(201);
+    expect(res.body.reachable).toBe(3);
+    expect(res.body.tags ?? []).toEqual([]);
+  });
+
   it("POST /campaigns validates", async () => {
     expect((await request(app).post("/campaigns").send({ ...body, budget: 10 })).status).toBe(400);
     expect((await request(app).post("/campaigns").send({ ...body, creative: {} })).status).toBe(400);

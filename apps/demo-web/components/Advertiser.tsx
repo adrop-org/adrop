@@ -5,16 +5,16 @@ import { API_BASE, explorer } from "../lib/config";
 type Created = { campaign_id: number; escrow_ata: string; segment_root: string; reachable: number; create_tx: string; fund_url: string };
 
 export function Advertiser() {
-  const [form, setForm] = useState({ advertiser: "", title: "Try Adrop", image_url: "https://placehold.co/600x400/png", cta_url: "https://example.com", price_per_view: 0.1, budget: 1, freq_cap: 1 });
+  const [form, setForm] = useState({ advertiser: "", title: "Try Adrop", image_url: "https://placehold.co/600x400/png", cta_url: "https://example.com", price_per_view: 0.1, budget: 1, freq_cap: 1, audience: "dex_swap_30d" });
   const [created, setCreated] = useState<Created | null>(null);
   const [status, setStatus] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault(); setError(null);
     const r = await fetch(`${API_BASE}/campaigns`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
-      advertiser: form.advertiser, tags: ["dex_swap_30d"], price_per_view: Math.round(form.price_per_view * 1e6), budget: Math.round(form.budget * 1e6), freq_cap: form.freq_cap,
+      advertiser: form.advertiser, tags: form.audience ? [form.audience] : [], price_per_view: Math.round(form.price_per_view * 1e6), budget: Math.round(form.budget * 1e6), freq_cap: form.freq_cap,
       creative: { image_url: form.image_url, title: form.title, cta_url: form.cta_url },
     }) });
     const body = await r.json();
@@ -27,12 +27,17 @@ export function Advertiser() {
     <>
       <section>
         <h2>Create a campaign</h2>
-        <p className="muted">Advertisers buy reach, not lists: the server snapshots the audience (<code>dex_swap_30d</code> ∩ registered identities) into a Merkle root. Funding is one x402 request.</p>
+        <p className="muted">Advertisers buy reach, not lists: the server snapshots the audience (a segment such as <code>dex_swap_30d</code> ∩ registered identities, or all registered identities when untargeted) into a Merkle root. Every viewer is a verified human; targeting sets the price. Funding is one x402 request.</p>
         <form onSubmit={create}>
           <label>Advertiser wallet (receives unspent budget)</label><input required value={form.advertiser} onChange={set("advertiser")} placeholder="pubkey" />
           <label>Title</label><input required value={form.title} onChange={set("title")} />
           <label>Image URL</label><input required value={form.image_url} onChange={set("image_url")} />
           <label>Click-through URL</label><input required value={form.cta_url} onChange={set("cta_url")} />
+          <label>Audience</label>
+          <select value={form.audience} onChange={set("audience")}>
+            <option value="dex_swap_30d">Targeted: dex_swap_30d (verified humans active on a DEX in 30 days) · suggested $0.50–1.00</option>
+            <option value="">Untargeted: every verified human · suggested $0.10–0.25</option>
+          </select>
           <div className="row">
             <div><label>Price per view (USDC)</label><input type="number" step="0.01" min="0.01" value={form.price_per_view} onChange={set("price_per_view")} /></div>
             <div><label>Budget (USDC)</label><input type="number" step="0.1" min="0.1" value={form.budget} onChange={set("budget")} /></div>

@@ -12,7 +12,7 @@ export type CampaignDeps = { db: Db; chain: ChainLike; x402: X402; usdcMint: str
 const pubkey = z.string().refine((s) => { try { new PublicKey(s); return true; } catch { return false; } }, "invalid pubkey");
 const CreateBody = z.object({
   advertiser: pubkey,
-  tags: z.array(z.string().min(1)).min(1),
+  tags: z.array(z.string().min(1)).default([]), // [] = untargeted: every registered identity
   price_per_view: z.number().int().positive(),
   min_dwell_ms: z.number().int().min(500).default(3000),
   freq_cap: z.number().int().min(1).max(255).default(1),
