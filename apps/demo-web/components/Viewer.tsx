@@ -5,6 +5,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
 import { Adrop, type Ad, type IdentityStatus, type Reward } from "adrop-sdk";
 import { API_BASE, HOST_ATA, USDC_MINT, explorer } from "../lib/config";
+import { Balances } from "./Balances";
 
 const ATA_PROGRAM = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 const TOKEN_PROGRAM = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
@@ -19,6 +20,7 @@ export function Viewer() {
   const [balance, setBalance] = useState<{ before?: number; after?: number }>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tick, setTick] = useState(0);
   const slot = useRef<HTMLDivElement>(null);
   const sdk = useRef<Adrop | null>(null);
 
@@ -48,6 +50,7 @@ export function Viewer() {
           setBalance((b) => ({ ...b, after: undefined }));
           const after = await usdc();
           setBalance((b) => ({ ...b, after }));
+          setTick((t) => t + 1);
           setIdentity(await (await fetch(`${API_BASE}/identity/${wallet.publicKey!.toBase58()}`)).json());
         }).catch(() => {});
       }
@@ -81,6 +84,7 @@ export function Viewer() {
         )}
       </section>
       {error && <section style={{ borderColor: "#c33" }}><b>Error</b> <code>{error}</code></section>}
+      <Balances viewerAta={wallet.publicKey ? ataOf(wallet.publicKey).toBase58() : undefined} campaignId={ad && ad !== "none" ? ad.campaign.id : undefined} refreshKey={tick} />
     </>
   );
 }

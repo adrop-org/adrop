@@ -18,7 +18,7 @@ export function createApp(deps: AppDeps) {
     next();
   });
   app.use(express.json({ limit: "64kb" }));
-  app.get("/health", (_req, res) => res.json({ ok: true }));
+  app.get("/health", (_req, res) => res.json({ ok: true, treasury_ata: deps.treasuryAta, usdc_mint: deps.usdcMint }));
   app.use(identityRoutes(deps));
   app.use(campaignRoutes(deps));
   app.use(claimRoutes(deps));
