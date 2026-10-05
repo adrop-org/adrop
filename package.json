@@ -14,7 +14,8 @@
     "devnet:init": "tsx apps/server/scripts/devnet-init.ts",
     "seg:build": "tsx apps/server/scripts/seg-build.ts",
     "fund:demo": "tsx apps/server/scripts/fund-campaign.ts",
-    "register:demo": "tsx apps/server/scripts/register-demo.ts"
+    "register:demo": "tsx apps/server/scripts/register-demo.ts",
+    "e2e:claim": "tsx apps/server/scripts/e2e-claim.ts"
   },
   "dependencies": {
     "@anchor-lang/core": "^1.2.0"

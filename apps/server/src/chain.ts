@@ -1,7 +1,7 @@
 import { AnchorProvider, Program, Wallet } from "@anchor-lang/core";
 import BN from "bn.js";
-import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, createTransferCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, createAssociatedTokenAccountIdempotentInstruction, createTransferCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { createHash } from "crypto";
 import { createRequire } from "module";
 import type { Adrop } from "@adrop/shared/idl/adrop";
@@ -13,7 +13,9 @@ export const sha256 = (b: Uint8Array) => new Uint8Array(createHash("sha256").upd
 export const nullifierOf = (mint: PublicKey) => sha256(mint.toBytes());
 
 export type IdentityView = { owner: string; proofType: number; viewsToday: number; lastDay: number };
-export type IdentityRow = { address: string; owner: string; nullifier: Uint8Array };
+export type IdentityRow = { address: string; owner: string; nullifier: Uint8Array; viewsToday?: number; lastDay?: number };
+export type PayViewArgs = { viewer: PublicKey; identity: PublicKey; campaignId: number; nonceHash: Uint8Array; proof: Uint8Array[]; hostAta: PublicKey; usdcMint: PublicKey; treasuryAta: PublicKey };
+export type BuiltTx = { tx_base64: string; message_hash: string; blockhash: string };
 export type CampaignView = { id: number; advertiser: string; status: "draft" | "active" | "ended"; pricePerView: number; budget: number; spent: number; escrowAta: string };
 
 export class Chain {
@@ -21,8 +23,10 @@ export class Chain {
   readonly programId: PublicKey;
   readonly configPda: PublicKey;
   readonly feePayer: Keypair;
-  constructor(readonly connection: Connection, feePayer: Keypair) {
+  readonly attester?: Keypair;
+  constructor(readonly connection: Connection, feePayer: Keypair, attester?: Keypair) {
     this.feePayer = feePayer;
+    this.attester = attester;
     const provider = new AnchorProvider(connection, new Wallet(feePayer), { commitment: "confirmed" });
     this.program = new Program<Adrop>(idl, provider);
     this.programId = this.program.programId;
@@ -48,6 +52,46 @@ export class Chain {
   async listIdentities(): Promise<IdentityRow[]> {
     const all = await this.program.account.identity.all();
     return all.map((a) => ({ address: a.publicKey.toBase58(), owner: a.account.owner.toBase58(), nullifier: Uint8Array.from(a.account.proofNullifier) }));
+  }
+
+  async findIdentityByOwner(owner: PublicKey): Promise<IdentityRow | null> {
+    const [a] = await this.program.account.identity.all([{ memcmp: { offset: 8, bytes: owner.toBase58() } }]);
+    return a ? { address: a.publicKey.toBase58(), owner: a.account.owner.toBase58(), nullifier: Uint8Array.from(a.account.proofNullifier), viewsToday: a.account.viewsToday, lastDay: a.account.lastDay } : null;
+  }
+
+  impressionPda(campaign: PublicKey, nonceHash: Uint8Array) {
+    return PublicKey.findProgramAddressSync([Buffer.from("impression"), campaign.toBytes(), nonceHash], this.programId)[0];
+  }
+
+  /** pay_view tx: viewer_ata create-idempotent (paid by fee payer) + pay_view; signed by attester and fee payer, viewer signs last. */
+  async buildPayViewTx(a: PayViewArgs): Promise<BuiltTx> {
+    if (!this.attester) throw new Error("attester key not loaded");
+    const campaign = this.campaignPda(a.campaignId);
+    const viewerAta = getAssociatedTokenAddressSync(a.usdcMint, a.viewer);
+    const tx = await this.program.methods.payView(Array.from(a.nonceHash), a.proof.map((p) => Array.from(p)))
+      .accountsPartial({
+        viewer: a.viewer, attester: this.attester.publicKey, feePayer: this.feePayer.publicKey, config: this.configPda, identity: a.identity, campaign,
+        usdcMint: a.usdcMint, escrowAta: this.escrowAta(a.campaignId, a.usdcMint), viewerAta, hostAta: a.hostAta, protocolTreasuryAta: a.treasuryAta,
+        impression: this.impressionPda(campaign, a.nonceHash), tokenProgram: TOKEN_PROGRAM_ID, systemProgram: SystemProgram.programId,
+      })
+      .preInstructions([createAssociatedTokenAccountIdempotentInstruction(this.feePayer.publicKey, viewerAta, a.viewer, a.usdcMint)])
+      .transaction();
+    tx.feePayer = this.feePayer.publicKey;
+    const { blockhash } = await this.connection.getLatestBlockhash("confirmed");
+    tx.recentBlockhash = blockhash;
+    tx.partialSign(this.attester, this.feePayer);
+    const message_hash = Buffer.from(sha256(tx.serializeMessage())).toString("hex");
+    return { tx_base64: tx.serialize({ requireAllSignatures: false, verifySignatures: false }).toString("base64"), message_hash, blockhash };
+  }
+
+  /** Sends a fully signed tx; returns the signature. Rejects a message that differs from `expectedMessageHash`. */
+  async sendSignedTx(signed_tx_base64: string, expectedMessageHash: string): Promise<string> {
+    const tx = Transaction.from(Buffer.from(signed_tx_base64, "base64"));
+    if (Buffer.from(sha256(tx.serializeMessage())).toString("hex") !== expectedMessageHash) throw new Error("transaction does not match the claim");
+    if (!tx.verifySignatures(true)) throw new Error("missing or invalid signatures");
+    const sig = await this.connection.sendRawTransaction(tx.serialize(), { skipPreflight: false });
+    await this.connection.confirmTransaction(sig, "confirmed");
+    return sig;
   }
 
   escrowAta(id: number, usdcMint: PublicKey) {
@@ -89,4 +133,4 @@ export class Chain {
   }
 }
 
-export type ChainLike = Pick<Chain, "fetchIdentity" | "buildRegisterTx" | "identityPda" | "listIdentities" | "escrowAta" | "fetchCampaign" | "createCampaign" | "fundAndActivate">;
+export type ChainLike = Pick<Chain, "fetchIdentity" | "buildRegisterTx" | "identityPda" | "listIdentities" | "escrowAta" | "fetchCampaign" | "createCampaign" | "fundAndActivate" | "findIdentityByOwner" | "buildPayViewTx" | "sendSignedTx">;
