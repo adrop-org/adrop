@@ -49,15 +49,18 @@ export async function createSgtMember(
   return { mint: mint.publicKey, tokenAccount };
 }
 
-// CLI: pnpm sgt:mock <holder-pubkey> [group-pubkey]. Payer/authority = ~/.config/solana/id.json or $SGT_AUTHORITY_KEYPAIR.
+// CLI: pnpm sgt:mock [holder-pubkey] [group-pubkey]. Payer/authority = ~/.config/solana/id.json or $SGT_AUTHORITY_KEYPAIR.
 if (require.main === module) {
   (async () => {
     const [holderArg, groupArg] = process.argv.slice(2);
-    if (!holderArg) throw new Error("usage: sgt-mock <holder-pubkey> [group-pubkey]");
+    // No holder: create the group only.
     const conn = new Connection(process.env.RPC_URL ?? "https://api.devnet.solana.com", "confirmed");
+    // Authority: $SGT_AUTHORITY_SECRET (JSON array), else $SGT_AUTHORITY_KEYPAIR file, else the solana CLI wallet.
     const kpPath = process.env.SGT_AUTHORITY_KEYPAIR ?? `${process.env.HOME}/.config/solana/id.json`;
-    const authority = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(kpPath, "utf8"))));
+    const secret = process.env.SGT_AUTHORITY_SECRET ?? fs.readFileSync(kpPath, "utf8");
+    const authority = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(secret)));
     const group = groupArg ? new PublicKey(groupArg) : await createSgtGroup(conn, authority, authority);
+    if (!holderArg) { console.log(JSON.stringify({ group: group.toBase58() })); return; }
     const { mint, tokenAccount } = await createSgtMember(conn, authority, authority, group, new PublicKey(holderArg));
     console.log(JSON.stringify({ group: group.toBase58(), mint: mint.toBase58(), tokenAccount: tokenAccount.toBase58() }, null, 2));
   })().catch((e) => { console.error(e); process.exit(1); });

@@ -12,5 +12,9 @@
   "devDependencies": {
     "tsx": "^4.19.0",
     "vitest": "^3.0.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./idl/*": "./idl/*"
   }
 }
