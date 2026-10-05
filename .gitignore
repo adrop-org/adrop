@@ -11,3 +11,4 @@ test-ledger
 dist
 .next
 data/
+packages/sdk/e2e/dist/
