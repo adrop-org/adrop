@@ -11,8 +11,13 @@
   "dependencies": {
     "@adrop/shared": "workspace:*",
     "@anchor-lang/core": "^1.2.0",
+    "@solana/kit": "^8.4.0",
     "@solana/spl-token": "^0.4.15",
     "@solana/web3.js": "^1.99.0",
+    "@x402/core": "^2.28.0",
+    "@x402/express": "^2.28.0",
+    "@x402/fetch": "^2.28.0",
+    "@x402/svm": "^2.28.0",
     "better-sqlite3": "^11.7.0",
     "bn.js": "^5.2.5",
     "express": "^4.21.2",
