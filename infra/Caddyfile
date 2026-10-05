@@ -1,0 +1,10 @@
+# TLS: Cloudflare Origin CA certificate for *.{$DOMAIN} in ./certs (origin.pem, origin.key).
+# Cloudflare terminates the visitor's TLS; origin runs "Full (strict)".
+api.{$DOMAIN} {
+	tls /certs/origin.pem /certs/origin.key
+	reverse_proxy server:3000
+}
+demo.{$DOMAIN} {
+	tls /certs/origin.pem /certs/origin.key
+	reverse_proxy web:3001
+}

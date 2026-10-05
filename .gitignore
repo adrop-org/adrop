@@ -12,3 +12,5 @@ dist
 .next
 data/
 packages/sdk/e2e/dist/
+infra/.env
+infra/certs/
