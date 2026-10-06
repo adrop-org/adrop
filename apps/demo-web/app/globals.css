@@ -22,3 +22,4 @@ pre { background: rgba(127,127,127,.12); padding: 10px; border-radius: 6px; over
 .adrop-creative { color: inherit; text-decoration: none; display: block; margin: 8px 0; }
 .adrop-title { font-weight: 600; margin-top: 6px; }
 .adrop-claim { width: 100%; }
+.hint { color: var(--muted); font-size: 0.9em; border-left: 3px solid #c90; padding-left: 8px; margin: 8px 0; }

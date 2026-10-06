@@ -28,6 +28,8 @@ X402_DEMO_SECRET='[...keypair bytes...]' pnpm fund:demo https://api.adrop.sh <ad
 On settlement the server forwards the USDC into the campaign escrow, activates the campaign and returns
 `{ status: "active", settle_tx, activate_tx }` with a `PAYMENT-RESPONSE` header.
 
+![agent funds a campaign over x402](agent-funding.gif)
+
 ## 3. Watch it run
 `GET /campaigns/:id` returns status, budget, spent and the audience size. Each paid view is one on-chain
 transaction from the escrow, visible on any explorer. Unspent budget is withdrawable by the advertiser wallet
