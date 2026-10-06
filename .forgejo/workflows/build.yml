@@ -9,8 +9,15 @@ env:
   REGISTRY: git.janbo.internal
   CA: /etc/ssl/certs/ca-certificates.crt
 jobs:
+  # One image per job: kaniko unpacks the base image over the container's filesystem and clones
+  # into /kaniko/buildcontext, so a second executor run in the same container fails ("repository already exists").
   images:
     runs-on: docker
+    strategy:
+      matrix:
+        include:
+          - { image: server, dockerfile: apps/server/Dockerfile, args: "" }
+          - { image: web, dockerfile: apps/demo-web/Dockerfile, args: "--build-arg NEXT_PUBLIC_API_BASE=https://api.adrop.sh --build-arg NEXT_PUBLIC_HOST_ATA=GYs2Ucn7MDE27VBiN4PU2MHZfVmM24ivD2FaJVX7RoyE" }
     container:
       image: gcr.io/kaniko-project/executor:v1.23.2-debug
     defaults: { run: { shell: sh } }
@@ -24,21 +31,17 @@ jobs:
           mkdir -p /kaniko/.docker
           auth=$(printf '%s:%s' "$REGISTRY_USER" "$REGISTRY_TOKEN" | base64 | tr -d '\n')
           printf '{"auths":{"%s":{"auth":"%s"}}}' "$REGISTRY" "$auth" > /kaniko/.docker/config.json
-      - name: server image
-        env: { GIT_USERNAME: "${{ github.actor }}", GIT_PASSWORD: "${{ github.token }}" }
+      - name: Build and push
+        env:
+          GIT_USERNAME: ${{ github.actor }}
+          GIT_PASSWORD: ${{ github.token }}
+          IMAGE: ${{ matrix.image }}
+          DOCKERFILE: ${{ matrix.dockerfile }}
+          BUILD_ARGS: ${{ matrix.args }}
         run: |
           /kaniko/executor --context "git://$REGISTRY/$GITHUB_REPOSITORY.git#refs/heads/main#$GITHUB_SHA" \
-            --dockerfile apps/server/Dockerfile \
-            --destination "$REGISTRY/adrop/server:$GITHUB_SHA" --destination "$REGISTRY/adrop/server:main" \
-            --registry-certificate "$REGISTRY=$CA" --snapshot-mode=redo --cache=false --cleanup
-      - name: web image
-        env: { GIT_USERNAME: "${{ github.actor }}", GIT_PASSWORD: "${{ github.token }}" }
-        run: |
-          /kaniko/executor --context "git://$REGISTRY/$GITHUB_REPOSITORY.git#refs/heads/main#$GITHUB_SHA" \
-            --dockerfile apps/demo-web/Dockerfile \
-            --build-arg NEXT_PUBLIC_API_BASE=https://api.adrop.sh \
-            --build-arg NEXT_PUBLIC_HOST_ATA=GYs2Ucn7MDE27VBiN4PU2MHZfVmM24ivD2FaJVX7RoyE \
-            --destination "$REGISTRY/adrop/web:$GITHUB_SHA" --destination "$REGISTRY/adrop/web:main" \
+            --dockerfile "$DOCKERFILE" $BUILD_ARGS \
+            --destination "$REGISTRY/adrop/$IMAGE:$GITHUB_SHA" --destination "$REGISTRY/adrop/$IMAGE:main" \
             --registry-certificate "$REGISTRY=$CA" --snapshot-mode=redo --cache=false
   deploy:
     needs: images
