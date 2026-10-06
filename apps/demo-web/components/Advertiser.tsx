@@ -21,6 +21,12 @@ export function Advertiser() {
     if (!r.ok) return setError(JSON.stringify(body));
     setCreated(body); setStatus(null);
   };
+  const fundDemo = async () => {
+    if (!created) return; setError(null);
+    const r = await fetch(`${API_BASE}/demo/fund/${created.campaign_id}`, { method: "POST" });
+    if (!r.ok) setError(JSON.stringify(await r.json()));
+    await refresh();
+  };
   const refresh = async () => created && setStatus(await (await fetch(`${API_BASE}/campaigns/${created.campaign_id}`)).json());
 
   return (
@@ -54,7 +60,7 @@ export function Advertiser() {
           <p>Fund it over x402 (any x402 client, including an AI agent):</p>
           <pre>{`curl -i -X POST ${created.fund_url}\n# → 402 PAYMENT-REQUIRED; then with an x402 client:\nX402_DEMO_SECRET=<json keypair> pnpm fund:demo ${API_BASE}`}</pre>
           <pre>{`import { wrapFetchWithPaymentFromConfig } from "@x402/fetch";\nimport { ExactSvmScheme } from "@x402/svm/exact/client";\nconst pay = wrapFetchWithPaymentFromConfig(fetch, { schemes: [{ network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", client: new ExactSvmScheme(signer) }] });\nawait pay("${created.fund_url}", { method: "POST" }); // settles ${form.budget} USDC, campaign goes Active`}</pre>
-          <p className="row"><button onClick={refresh}>Refresh status</button>{status && <span>status: <b>{status.status}</b> · spent {(status.spent / 1e6).toFixed(2)} / {(status.budget / 1e6).toFixed(2)} USDC</span>}</p>
+          <p className="row"><button onClick={fundDemo}>Fund with demo agent (devnet)</button><button onClick={refresh}>Refresh status</button>{status && <span>status: <b>{status.status}</b> · spent {(status.spent / 1e6).toFixed(2)} / {(status.budget / 1e6).toFixed(2)} USDC</span>}</p>
         </section>
       )}
     </>
