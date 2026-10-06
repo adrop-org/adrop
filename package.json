@@ -1,0 +1,36 @@
+{
+  "name": "adrop-monorepo",
+  "private": true,
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:program": "anchor build",
+    "test": "anchor test --validator legacy",
+    "test:unit": "pnpm -r --if-present test",
+    "sgt:mock": "tsx scripts/sgt-mock.ts",
+    "idl": "cp target/idl/adrop.json packages/shared/idl/adrop.json && cp target/types/adrop.ts packages/shared/idl/adrop.ts",
+    "devnet:init": "tsx apps/server/scripts/devnet-init.ts",
+    "seg:build": "tsx apps/server/scripts/seg-build.ts",
+    "fund:demo": "tsx apps/server/scripts/fund-campaign.ts",
+    "register:demo": "tsx apps/server/scripts/register-demo.ts",
+    "e2e:claim": "tsx apps/server/scripts/e2e-claim.ts"
+  },
+  "dependencies": {
+    "@anchor-lang/core": "^1.2.0"
+  },
+  "devDependencies": {
+    "@solana/spl-token": "^0.4.15",
+    "@solana/web3.js": "1",
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3"
+  }
+}

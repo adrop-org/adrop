@@ -1,0 +1,9 @@
+**/node_modules
+**/.next
+**/dist
+**/data
+target
+.anchor
+.git
+infra/certs
+infra/.env

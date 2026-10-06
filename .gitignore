@@ -1,0 +1,17 @@
+.anchor
+.DS_Store
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+.surfpool
+.env
+*.log
+dist
+.next
+data/
+packages/sdk/e2e/dist/
+infra/.env
+infra/certs/
+site/
