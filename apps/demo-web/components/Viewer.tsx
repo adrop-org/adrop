@@ -39,6 +39,18 @@ export function Viewer() {
     connection.getBalance(wallet.publicKey).then((l) => setSol(l / 1e9)).catch(() => setSol(null));
   }, [wallet.publicKey, wallet.signMessage, wallet.signTransaction, usdc, connection]);
 
+  const mintSgt = async () => {
+    setError(null); setBusy(true);
+    try {
+      const r = await fetch(`${API_BASE}/demo/mint-sgt`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ wallet: wallet.publicKey!.toBase58() }) });
+      const body = await r.json();
+      if (!r.ok) throw new Error(JSON.stringify(body));
+      await new Promise((ok) => setTimeout(ok, 2500)); // let the RPC index the new token account
+      const id = await (await fetch(`${API_BASE}/identity/${wallet.publicKey!.toBase58()}`)).json();
+      setIdentity(id);
+      if (body.already && !id.has_sgt) setError(`A token (${body.mint}) was already minted for this wallet; give the RPC a moment and reload.`);
+    } catch (e: any) { setError(e.message); } finally { setBusy(false); }
+  };
   const optIn = async () => { setError(null); setBusy(true); try { setIdentity(await sdk.current!.optIn()); } catch {} finally { setBusy(false); } };
   const loadAd = async () => {
     setError(null); setReward(null); setBusy(true);
@@ -75,8 +87,11 @@ export function Viewer() {
           </p>
         )}
         {identity && !identity.has_sgt && (
+          <>
           <p className="hint">No Genesis Token here, so this wallet cannot opt in. On a Seeker phone the token is found automatically.
-            On devnet, mock tokens are minted by the Adrop team (<code>pnpm sgt:mock</code>, group authority required); the demo wallet already holds one.</p>
+            On devnet you can mint a mock one here.</p>
+          <p><button onClick={mintSgt} disabled={busy}>Mint a devnet Genesis Token</button></p>
+          </>
         )}
         {identity && identity.has_sgt && !identity.registered && sol === 0 && (
           <p className="hint">This wallet has 0 SOL. Registration needs about 0.002 SOL for the identity account; Phantom closes without a message otherwise.

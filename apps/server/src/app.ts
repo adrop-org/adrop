@@ -5,7 +5,7 @@ import { campaignRoutes, type CampaignDeps } from "./routes/campaigns.js";
 import { demoRoutes } from "./routes/demo.js";
 import { claimRoutes, type ClaimDeps } from "./routes/claims.js";
 
-export type AppDeps = IdentityDeps & CampaignDeps & ClaimDeps & { rpcUrl?: string };
+export type AppDeps = IdentityDeps & CampaignDeps & ClaimDeps & { rpcUrl?: string; mintSgt?: (wallet: string) => Promise<string> };
 
 export function createApp(deps: AppDeps) {
   const app = express();

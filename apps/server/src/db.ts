@@ -10,6 +10,7 @@ export function openDb(path: string): Db {
   db.pragma("journal_mode = WAL");
   db.exec(`
     CREATE TABLE IF NOT EXISTS segments (tag TEXT NOT NULL, wallet TEXT NOT NULL, PRIMARY KEY (tag, wallet));
+    CREATE TABLE IF NOT EXISTS demo_mints (wallet TEXT PRIMARY KEY, mint TEXT, created_at INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS campaigns (
       id INTEGER PRIMARY KEY, advertiser TEXT NOT NULL, tags TEXT NOT NULL, price_per_view INTEGER NOT NULL,
       min_dwell_ms INTEGER NOT NULL, freq_cap INTEGER NOT NULL, budget INTEGER NOT NULL, creative TEXT NOT NULL,
