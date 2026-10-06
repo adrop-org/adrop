@@ -14,6 +14,8 @@ ARG NEXT_PUBLIC_API_BASE
 ARG NEXT_PUBLIC_RPC_URL=https://api.devnet.solana.com
 ARG NEXT_PUBLIC_HOST_ATA
 ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE NEXT_PUBLIC_RPC_URL=$NEXT_PUBLIC_RPC_URL NEXT_PUBLIC_HOST_ATA=$NEXT_PUBLIC_HOST_ATA
+# The CI runner caps jobs at 2 GB (operator ADR-0008) and kaniko shares it: keep Next's heap small, one worker.
+ENV NODE_OPTIONS=--max-old-space-size=768 NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter adrop-sdk build && pnpm --filter @adrop/demo-web build
 WORKDIR /app/apps/demo-web
 ENV NODE_ENV=production
