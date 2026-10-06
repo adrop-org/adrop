@@ -17,8 +17,11 @@ packages/sdk/      adrop-sdk, framework-free web build (ESM + IIFE)
 apps/server/       Express: x402 funding, impressions, claims, attester
 apps/demo-web/     Next.js host app that integrates the SDK like a third party would
 infra/             docker-compose, Caddy, .env.example
-docs/              DISCLOSURE.md (reused code), VALIDATION.md
+docs/              public docs (MkDocs Material → docs.adrop.sh): SDK, API, protocol, identity, DISCLOSURE.md
 ```
+
+## Docs
+[docs.adrop.sh](https://docs.adrop.sh), source in `docs/`. Preview: `mkdocs serve` (needs `pip install mkdocs-material`).
 
 ## Run
 Filled in as each part lands. Requirements: Node 20, pnpm, Rust, Solana CLI, Anchor.

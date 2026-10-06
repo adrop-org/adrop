@@ -1,0 +1,26 @@
+site_name: Adrop
+site_url: https://docs.adrop.sh
+site_description: Rewarded ads that pay the viewer. SDK, API and protocol docs.
+repo_url: https://github.com/adrop-org/adrop
+edit_uri: edit/main/docs/
+copyright: Apache-2.0
+theme:
+  name: material
+  features: [navigation.sections, navigation.footer, content.code.copy, search.suggest]
+  palette:
+    - scheme: default
+      primary: black
+      toggle: { icon: material/brightness-7, name: Dark mode }
+    - scheme: slate
+      primary: black
+      toggle: { icon: material/brightness-4, name: Light mode }
+markdown_extensions: [admonition, tables, attr_list, pymdownx.superfences, pymdownx.highlight, toc]
+nav:
+  - What is Adrop: index.md
+  - How it works: how-it-works.md
+  - Integrate the SDK: integrate.md
+  - Run a campaign: advertise.md
+  - Server API: api.md
+  - Protocol (on-chain): protocol.md
+  - Identity: IDENTITY.md
+  - Reused code: DISCLOSURE.md
