@@ -18,6 +18,7 @@ export function Advertiser() {
     ? Adrop.init({ apiBase: API_BASE, hostAta: HOST_ATA, wallet: { publicKey: wallet.publicKey, signMessage: wallet.signMessage, signTransaction: wallet.signTransaction } })
     : null, [wallet.publicKey, wallet.signTransaction, wallet.signMessage]);
   const [busy, setBusy] = useState(false);
+  const [funded, setFunded] = useState<{ settle_tx: string; activate_tx: string } | null>(null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
 
   const create = async (e: React.FormEvent) => {
@@ -28,7 +29,7 @@ export function Advertiser() {
       test_wallets: form.test_wallets.split(/[\s,]+/).filter(Boolean).slice(0, 5),
     };
     try {
-      if (sdk) { setCreated(await sdk.createCampaign(input)); setStatus(null); return; }
+      if (sdk) { setCreated(await sdk.createCampaign(input)); setStatus(null); setFunded(null); return; }
       const r = await fetch(`${API_BASE}/campaigns`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input) });
       const body = await r.json();
       if (!r.ok) return setError(JSON.stringify(body));
@@ -37,7 +38,7 @@ export function Advertiser() {
   };
   const fundWallet = async () => {
     if (!created || !sdk) return; setError(null); setBusy(true);
-    try { await sdk.fundCampaign(created.campaign_id); } catch (e: any) { setError(`${e.code ?? "error"}: ${e.message}`); } finally { setBusy(false); }
+    try { setFunded(await sdk.fundCampaign(created.campaign_id)); } catch (e: any) { setError(`${e.code ?? "error"}: ${e.message}`); } finally { setBusy(false); }
     await refresh();
   };
   const fundDemo = async () => {
@@ -73,7 +74,7 @@ export function Advertiser() {
           </div>
           <p><button type="submit">Create (Draft)</button></p>
         </form>
-        {error && <pre>{error}</pre>}
+        {error && !created && <pre>{error}</pre>}
       </section>
       {created && (
         <section>
@@ -83,6 +84,8 @@ export function Advertiser() {
             <button onClick={fundWallet} disabled={!sdk || busy}>{busy ? "Paying…" : `Fund ${form.budget} USDC with my wallet (x402)`}</button>
             <span className="muted">{sdk ? "One USDC transfer signed by your wallet; the server escrows it and activates the campaign." : "Connect a wallet to pay yourself."}</span>
           </p>
+          {funded && <p><b>Funded and active.</b> <a href={explorer(funded.settle_tx)} target="_blank" rel="noopener">x402 settlement</a> · <a href={explorer(funded.activate_tx)} target="_blank" rel="noopener">activate tx</a></p>}
+          {error && <pre>{error}</pre>}
           <p>Or fund it from anywhere over x402 (any x402 client, including an AI agent):</p>
           <pre>{`curl -i -X POST ${created.fund_url}\n# → 402 PAYMENT-REQUIRED; then with an x402 client:\nX402_DEMO_SECRET=<json keypair> pnpm fund:demo ${API_BASE}`}</pre>
           <pre>{`import { wrapFetchWithPaymentFromConfig } from "@x402/fetch";\nimport { ExactSvmScheme } from "@x402/svm/exact/client";\nconst pay = wrapFetchWithPaymentFromConfig(fetch, { schemes: [{ network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", client: new ExactSvmScheme(signer) }] });\nawait pay("${created.fund_url}", { method: "POST" }); // settles ${form.budget} USDC, campaign goes Active`}</pre>
