@@ -9,11 +9,13 @@ export type AppDeps = IdentityDeps & CampaignDeps & ClaimDeps & { rpcUrl?: strin
 
 export function createApp(deps: AppDeps) {
   const app = express();
-  // Host apps call the API cross-origin from the SDK; x402 clients need the payment headers exposed.
+  // Host apps call the API cross-origin from the SDK. x402 clients send PAYMENT-SIGNATURE and, for V1
+  // compatibility, X-PAYMENT on the paid retry, and read PAYMENT-REQUIRED / PAYMENT-RESPONSE: allow and
+  // expose everything (no credentials, so `*` is honoured by browsers).
   app.use((req, res, next) => {
     res.setHeader("access-control-allow-origin", "*");
-    res.setHeader("access-control-allow-headers", "content-type, payment-signature, payment-required");
-    res.setHeader("access-control-expose-headers", "payment-required, payment-response");
+    res.setHeader("access-control-allow-headers", "*");
+    res.setHeader("access-control-expose-headers", "*");
     res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
     if (req.method === "OPTIONS") return res.sendStatus(204);
     next();

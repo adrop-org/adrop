@@ -85,3 +85,14 @@ describe("test_wallets (devnet demo)", () => {
     expect((await request(app).post("/campaigns").send({ ...body, test_wallets: [w(), w(), w(), w(), w(), w()] })).status).toBe(400);
   });
 });
+
+describe("cors", () => {
+  it("preflight allows any request header so x402 clients can retry with PAYMENT-SIGNATURE and X-PAYMENT", async () => {
+    const deps = testDeps();
+    const app = createApp({ ...deps, helius: { findSgt: async () => null }, sgtGroup: "x" });
+    const r = await request(app).options("/campaigns/1/fund").set("Origin", "https://demo.adrop.sh").set("Access-Control-Request-Headers", "payment-signature,x-payment");
+    expect(r.status).toBe(204);
+    expect(r.headers["access-control-allow-headers"]).toBe("*");
+    expect(r.headers["access-control-expose-headers"]).toBe("*");
+  });
+});
