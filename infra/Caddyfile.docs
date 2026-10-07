@@ -5,6 +5,10 @@
 	@landing host adrop.sh
 	handle @landing {
 		root * /srv/www
+		handle_path /brand/* {
+			root * /srv/docs/brand
+			file_server
+		}
 		file_server
 	}
 	handle {

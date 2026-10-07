@@ -16,8 +16,9 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.5 Inter, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
   main { max-width: 880px; margin: 0 auto; padding: 48px 20px 32px; min-height: 100vh; display: flex; flex-direction: column; }
-  header { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 22px; letter-spacing: -.5px; }
-  header svg { width: 28px; height: 28px; }
+  header img { display: block; height: 40px; width: auto; }
+  header .dark { display: none; }
+  @media (prefers-color-scheme: dark) { header .light { display: none; } header .dark { display: block; } }
   h1 { font-size: clamp(36px, 7vw, 64px); line-height: 1.05; letter-spacing: -2px; margin: 64px 0 20px; }
   h1 em { font-style: normal; color: var(--coin); }
   .lede { font-size: 20px; color: var(--mute); max-width: 640px; margin: 0 0 32px; }
@@ -36,8 +37,8 @@
 <body>
 <main>
   <header>
-    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4c12 16 20 26 20 38a20 20 0 0 1-40 0C12 30 20 20 32 4z" fill="currentColor"/><circle cx="32" cy="42" r="9" fill="#F5C518"/><circle cx="32" cy="42" r="4.5" fill="currentColor"/></svg>
-    adrop
+    <img src="/brand/wordmark.svg" alt="adrop" class="light" width="148" height="40">
+    <img src="/brand/wordmark-dark.svg" alt="adrop" class="dark" width="148" height="40">
   </header>
 
   <h1>Ads that <em>pay the viewer.</em></h1>
