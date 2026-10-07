@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adrop</title>
+<meta name="description" content="Rewarded ads that pay the viewer. Verified humans view, engage and act; every qualified view pays USDC from escrow. Advertisers and agents fund campaigns over x402.">
+<meta property="og:title" content="Adrop: ads that pay the viewer">
+<meta property="og:description" content="Verified humans view, engage, act, and get paid in USDC per view. Fund a campaign with one HTTP request over x402.">
+<meta property="og:url" content="https://adrop.sh">
+<meta property="og:image" content="https://adrop.sh/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  :root { --ink: #111; --paper: #FAFAF7; --coin: #F5C518; --mute: #666; --line: #E4E2DC; }
+  @media (prefers-color-scheme: dark) { :root { --ink: #F2F1EC; --paper: #111; --mute: #A9A69E; --line: #2A2A2A; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.5 Inter, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 48px 20px 32px; min-height: 100vh; display: flex; flex-direction: column; }
+  header img { display: block; height: 40px; width: auto; }
+  header .dark { display: none; }
+  @media (prefers-color-scheme: dark) { header .light { display: none; } header .dark { display: block; } }
+  h1 { font-size: clamp(36px, 7vw, 64px); line-height: 1.05; letter-spacing: -2px; margin: 64px 0 20px; }
+  h1 em { font-style: normal; color: var(--coin); }
+  .lede { font-size: 20px; color: var(--mute); max-width: 640px; margin: 0 0 32px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 64px; }
+  .cta a { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 1px solid var(--ink); color: var(--ink); }
+  .cta a.primary { background: var(--ink); color: var(--paper); }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; padding: 32px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .steps h2 { font-size: 16px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .steps p { margin: 0; color: var(--mute); font-size: 15px; }
+  .how { margin: 40px 0; color: var(--mute); max-width: 640px; }
+  .how code { font-size: 14px; background: var(--line); padding: 2px 6px; border-radius: 4px; }
+  footer { margin-top: auto; padding-top: 32px; display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--mute); }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="/brand/wordmark.svg" alt="adrop" class="light" width="148" height="40">
+    <img src="/brand/wordmark-dark.svg" alt="adrop" class="dark" width="148" height="40">
+  </header>
+
+  <h1>Ads that <em>pay the viewer.</em></h1>
+  <p class="lede">Verified humans view, engage and act. Every qualified view pays the viewer in USDC straight from the campaign's escrow: 70% viewer, 20% host app, 10% protocol. No token, no wallet lists.</p>
+
+  <div class="cta">
+    <a class="primary" href="https://demo.adrop.sh">Try the demo</a>
+    <a href="https://github.com/adrop-org/adrop-sdk#readme">Integrate the SDK</a>
+    <a href="https://docs.adrop.sh">Docs</a>
+  </div>
+
+  <section class="steps">
+    <div><h2>View</h2><p>An opted-in human watches an ad for the dwell time, on screen and in focus. One on-chain payout per view.</p></div>
+    <div><h2>Engage</h2><p>Attention checks, not clicks. A quiz or an in-ad answer earns a bonus from the same escrow.</p></div>
+    <div><h2>Act</h2><p>An on-chain action or a Blink after the view, paid at a second price. Never a paid click.</p></div>
+  </section>
+
+  <p class="how">Advertisers, human or AI agent, fund a campaign with one HTTP request: <code>POST /campaigns/:id/fund</code> answers <code>402</code>, the client pays over <a href="https://x402.org">x402</a>, the server escrows the USDC and the campaign goes live. Advertisers buy verified reach by on-chain behaviour and never receive addresses.</p>
+
+  <footer>
+    <a href="https://github.com/adrop-org/adrop">GitHub</a>
+    <a href="https://docs.adrop.sh">Docs</a>
+    <span>Solana devnet · Colosseum Crypto World's Fair 2026 · Apache-2.0</span>
+  </footer>
+</main>
+</body>
+</html>
