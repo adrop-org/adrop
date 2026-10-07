@@ -75,6 +75,7 @@ devnet USDC account) or nobody in particular; `loadAd()` returns `null` when no 
 | `loadAd(campaignId?)` | `POST /impressions`; returns the `Ad` (creative, `min_dwell_ms`, `price_per_view` in USDC micro-units) or `null` |
 | `show(container)` | renders the creative, tracks attention, enables Claim, runs the claim and returns the `Reward` |
 | `onReward(handler)`, `onError(handler)` | chainable listeners |
+| `createCampaign(input)`, `fundCampaign(id)`, `getCampaign(id)` | advertiser side: create a Draft campaign (the wallet is the advertiser), pay its `402` over x402 with the same wallet, read status. See [Run a campaign](advertise.md) |
 
 Errors arrive as `AdropError { code, message, status }`. Codes you will handle:
 `no_sgt` (the wallet holds no proof of personhood), `no_campaign` (nothing to show now), `no_ad`

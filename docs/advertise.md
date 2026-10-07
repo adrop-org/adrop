@@ -1,8 +1,31 @@
 # Run a campaign
 
-An advertiser, or an agent acting for one, needs a wallet with devnet USDC and an x402 client. No account, no login.
+Three ways in, same result: a funded campaign in escrow that pays verified humans per qualified view.
 
-## 1. Create
+| You are | Use | What you need |
+|---|---|---|
+| An advertiser or agency buying reach | the self-serve page: [demo.adrop.sh/advertiser](https://demo.adrop.sh/advertiser) | a Solana wallet with USDC (devnet today); no account, no sales call |
+| An app that sold a sponsorship itself | the SDK you already ship: `createCampaign()` + `fundCampaign()` | the host SDK, your wallet; the campaign runs in every app whose audience matches (host scope is on the roadmap) |
+| An AI agent or a script | plain HTTP + x402: `POST /campaigns`, then pay the `402` on `/campaigns/:id/fund` | any x402 V2 client with a USDC wallet |
+
+Agencies are not expected to integrate anything: they use the page, or send a brief and a budget. The API exists for
+agents and for partners that automate buying.
+
+## With the SDK
+```ts
+const adrop = Adrop.init({ apiBase: "https://api.adrop.sh", hostAta, wallet });     // wallet = the advertiser's
+const { campaign_id } = await adrop.createCampaign({
+  tags: ["dex_swap_30d"], price_per_view: 500_000, budget: 50_000_000, freq_cap: 1,
+  creative: { image_url: "https://.../banner.png", title: "Try our DEX", cta_url: "https://..." },
+});
+await adrop.fundCampaign(campaign_id);   // the wallet signs one USDC transfer (x402 exact); the server escrows and activates
+await adrop.getCampaign(campaign_id);    // status, budget, spent, reach
+```
+The advertiser defaults to the connected wallet and receives any unspent budget. The two calls below are what the
+SDK does.
+
+## Over HTTP (agents and scripts)
+### 1. Create
 ```sh
 curl -s https://api.adrop.sh/campaigns -H 'content-type: application/json' -d '{
   "advertiser": "<your wallet>",
@@ -18,7 +41,7 @@ Amounts are USDC micro-units: `500000` = $0.50 per view, `50000000` = $50 budget
 untargeted campaign that reaches every registered identity; a tag such as `dex_swap_30d` targets a behaviour
 segment. The response carries `campaign_id`, `escrow_ata` and `fund_url`. The campaign is `Draft` until funded.
 
-## 2. Fund over x402
+### 2. Fund over x402
 `POST /campaigns/:id/fund` answers `402 Payment Required` with a `PAYMENT-REQUIRED` header: scheme `exact`,
 network `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` (devnet), the USDC mint, the amount (your budget) and `payTo`.
 Any x402 V2 client pays it; the repository ships one:
@@ -30,7 +53,7 @@ On settlement the server forwards the USDC into the campaign escrow, activates t
 
 ![agent funds a campaign over x402](agent-funding.gif)
 
-## 3. Watch it run
+## Watch it run
 `GET /campaigns/:id` returns status, budget, spent and the audience size. Each paid view is one on-chain
 transaction from the escrow, visible on any explorer. Unspent budget is withdrawable by the advertiser wallet
 once the campaign is ended.
