@@ -23,9 +23,11 @@ jobs:
         env:
           TOKEN: ${{ secrets.MIRROR_GITHUB_TOKEN }}
         run: |
+          apk add --no-cache -q git-subtree >/dev/null   # alpine/git ships without `git subtree`
           [ -n "$TOKEN" ] || { echo "MIRROR_GITHUB_TOKEN unset (hq scripts/github-mirror-secret.sh)"; exit 1; }
           cd src
           gh() { echo "https://x-access-token:$TOKEN@github.com/adrop-org/$1.git"; }
+          set -x
           git push -q "$(gh adrop)" "HEAD:refs/heads/main"
           split=$(git subtree split --prefix=packages/sdk HEAD)
           git push -q --force "$(gh adrop-sdk)" "$split:refs/heads/main"
