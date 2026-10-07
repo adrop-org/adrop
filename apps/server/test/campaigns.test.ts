@@ -68,3 +68,19 @@ describe("campaigns", () => {
     expect((await request(app).post("/campaigns/1/fund")).status).toBe(409);
   });
 });
+
+describe("test_wallets (devnet demo)", () => {
+  it("keeps only the named registered wallets in the snapshot", async () => {
+    const r = await request(app).post("/campaigns").send({ ...body, tags: [], test_wallets: [ids[1].owner, w()] });
+    expect(r.status).toBe(201);
+    expect(r.body.reachable).toBe(1);
+  });
+  it("400 when none of the named wallets is registered", async () => {
+    const r = await request(app).post("/campaigns").send({ ...body, tags: [], test_wallets: [w()] });
+    expect(r.status).toBe(400);
+    expect(r.body.error).toBe("test_wallets_not_registered");
+  });
+  it("rejects more than 5", async () => {
+    expect((await request(app).post("/campaigns").send({ ...body, test_wallets: [w(), w(), w(), w(), w(), w()] })).status).toBe(400);
+  });
+});
