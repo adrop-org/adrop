@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <title>Adrop wordmark</title>
+  <path d="M40 8c10 13 16 21 16 31a16 16 0 0 1-32 0c0-10 6-18 16-31z" fill="#111"/>
+  <circle cx="40" cy="40" r="7" fill="#F5C518"/>
+  <text x="72" y="56" font-family="Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="52" font-weight="700" letter-spacing="-2" fill="#111">adrop</text>
+</svg>

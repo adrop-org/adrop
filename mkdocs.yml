@@ -6,6 +6,8 @@ edit_uri: edit/main/docs/
 copyright: Apache-2.0
 theme:
   name: material
+  logo: brand/mark-a.svg
+  favicon: brand/mark-a.svg
   features: [navigation.sections, navigation.footer, content.code.copy, search.suggest]
   palette:
     - scheme: default

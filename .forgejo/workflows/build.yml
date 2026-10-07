@@ -1,4 +1,4 @@
-# Push to main: build server and web images with kaniko (no Docker socket on the runner,
+# Push to main: build server, web and docs images with kaniko (no Docker socket on the runner,
 # operator ADR-0008), push to the Forgejo registry, bump the tags in adrop/deploy so Argo CD
 # rolls them out (hq ADR-0004). Registry push uses the CI bot (hq scripts/ci-registry-bot.sh).
 name: build
@@ -17,6 +17,7 @@ jobs:
       matrix:
         include:
           - { image: server, dockerfile: apps/server/Dockerfile, args: "" }
+          - { image: docs, dockerfile: infra/docs.Dockerfile, args: "" }
           - { image: web, dockerfile: apps/demo-web/Dockerfile, args: "--build-arg NEXT_PUBLIC_API_BASE=https://api.adrop.sh --build-arg NEXT_PUBLIC_HOST_ATA=GYs2Ucn7MDE27VBiN4PU2MHZfVmM24ivD2FaJVX7RoyE" }
     container:
       image: gcr.io/kaniko-project/executor:v1.23.2-debug
@@ -56,7 +57,7 @@ jobs:
           echo "[git.janbo.internal]:2222 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAij6IjxxeIEnYYSmLnQ4rvc3wCu6A90y3VriTWTd316Eq+dkDXbFbxmsxcmUosITTS5OLv/6YtMKo2kozGMtaO5KxD/lAG70IzTXKZ82FiI/1G9cmitm9xHfUzeNXvW2voI44bnIwk46gyR7WunO33aZkGA18U+1q+IQUYvAlp5BaBfdS+MvHP7miWI3sEhRARvBmKbb9FpLcCjuIG5IqpKORwZAdKS4yT4iFB1AUi6ferdOsyQ4rApA0E2jo9AaJ5YC45iTkQi5Lk0vw0rbp29iSnBPTj0AQAET302uhEVDANbk6uBZdMC9rBzQ1J7t04Y4PNNkZaIpH2p0bz6iJBsLRtiwmeoPV8lFPnmNeb6UJ+1q0QZC2fJH8fau+O9mzhWrp/HP0bbhjGSnos9n5C3ozu6Ap5VcF4ArrlI2vurtJ9MQOB/xNDNJ9WB4g5wHzliFEBvu5biCYH++lhnPVGO02hlOWMoCyZawrlk7DehuV1X8CNiIhCzoojMl5hxfNkFBVuj+UtiyLkYFbhTYlRgT4d0CqNN3S7mqhAbAxy0pPSCnjyfi55jaZ+/64C+7U6MEQGWvq6AbxeZyNFO9kheAzJtZN4+u+CTkhd/3owyf141NSjkatXzeVhuQB118+kanr6NVxEXV/89kQNYlf2tdZKgWVYv8AVOpZV7YJzw==" > ~/.ssh/known_hosts
           git clone -q --depth 1 ssh://git@git.janbo.internal:2222/adrop/deploy.git /tmp/deploy
           cd /tmp/deploy
-          for img in server web; do
+          for img in server web docs; do
             awk -v img="git.janbo.internal/adrop/$img" -v tag="$GITHUB_SHA" '
               $0 ~ "name: " img "$" { print; getline; sub(/newTag: .*/, "newTag: " tag) } { print }
             ' overlays/dev/kustomization.yaml > /tmp/k.yaml && mv /tmp/k.yaml overlays/dev/kustomization.yaml

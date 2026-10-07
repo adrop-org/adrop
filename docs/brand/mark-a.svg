@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Adrop mark A: a drop with a coin</title>
+  <path d="M32 4c12 16 20 26 20 38a20 20 0 0 1-40 0C12 30 20 20 32 4z" fill="#111"/>
+  <circle cx="32" cy="42" r="9" fill="#F5C518"/>
+  <circle cx="32" cy="42" r="4.5" fill="#111"/>
+</svg>
