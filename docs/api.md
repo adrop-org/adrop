@@ -9,7 +9,7 @@ and agents use the campaign calls directly. x402 V2 headers: `PAYMENT-REQUIRED`,
 | `GET /identity/:wallet` | | `{ registered, has_sgt, sgt_mint?, views_today? }` | looks up the proof of personhood, then the on-chain identity |
 | `POST /identity/register-tx` | `{ wallet }` | `{ tx_base64 }` | unsigned `register_identity` transaction |
 | `POST /identity/submit` | `{ signed_tx_base64 }` | `{ tx }` | server sends and confirms |
-| `POST /campaigns` | `{ advertiser, tags[], price_per_view, budget, freq_cap?, min_dwell_ms?, creative{image_url,title,cta_url} }` | `{ campaign_id, escrow_ata, fund_url }` | snapshots the audience into a Merkle root, creates the campaign on-chain, status `Draft` |
+| `POST /campaigns` | `{ advertiser, tags[], price_per_view, budget, freq_cap?, min_dwell_ms?, creative{image_url,title,cta_url}, test_wallets?[] }` | `{ campaign_id, escrow_ata, fund_url }` | snapshots the audience into a Merkle root, creates the campaign on-chain, status `Draft`. `test_wallets` (max 5) is a devnet demo aid: the snapshot keeps only those registered wallets, so a tester can see the reward; advertisers never target wallet lists in the product |
 | `GET /campaigns/:id` | | campaign status, budget, spent, audience size | |
 | `POST /campaigns/:id/fund` | x402 payment of `budget` | `{ status: "active", settle_tx, activate_tx }` | `402` until paid; settles, forwards to escrow, activates |
 | `POST /impressions` | `{ identity_wallet, host_ata, campaign_id? }` | `{ impression_id, nonce, campaign{id, creative, min_dwell_ms, price_per_view}, expires_at }` | checks identity, audience, frequency cap, daily cap; `404 no_campaign` when nothing fits |

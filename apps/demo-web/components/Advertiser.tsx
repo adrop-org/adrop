@@ -5,17 +5,18 @@ import { API_BASE, explorer } from "../lib/config";
 type Created = { campaign_id: number; escrow_ata: string; segment_root: string; reachable: number; create_tx: string; fund_url: string };
 
 export function Advertiser() {
-  const [form, setForm] = useState({ advertiser: "", title: "Try Adrop", image_url: "https://placehold.co/600x400/png", cta_url: "https://example.com", price_per_view: 0.1, budget: 1, freq_cap: 1, audience: "dex_swap_30d" });
+  const [form, setForm] = useState({ advertiser: "", title: "Try Adrop", image_url: "https://placehold.co/600x400/png", cta_url: "https://example.com", price_per_view: 0.1, budget: 1, freq_cap: 1, audience: "dex_swap_30d", test_wallets: "" });
   const [created, setCreated] = useState<Created | null>(null);
   const [status, setStatus] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault(); setError(null);
     const r = await fetch(`${API_BASE}/campaigns`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
       advertiser: form.advertiser, tags: form.audience ? [form.audience] : [], price_per_view: Math.round(form.price_per_view * 1e6), budget: Math.round(form.budget * 1e6), freq_cap: form.freq_cap,
       creative: { image_url: form.image_url, title: form.title, cta_url: form.cta_url },
+      test_wallets: form.test_wallets.split(/[\s,]+/).filter(Boolean).slice(0, 5),
     }) });
     const body = await r.json();
     if (!r.ok) return setError(JSON.stringify(body));
@@ -44,6 +45,8 @@ export function Advertiser() {
             <option value="dex_swap_30d">Targeted: dex_swap_30d (verified humans active on a DEX in 30 days) · suggested $0.50–1.00</option>
             <option value="">Untargeted: every verified human · suggested $0.10–0.25</option>
           </select>
+          <label>Test audience (devnet demo only): up to 5 wallet addresses, one per line. Only these registered wallets will see the ad. Leave empty for the real audience above.</label>
+          <textarea rows={3} value={form.test_wallets} onChange={set("test_wallets")} placeholder="your wallet, so you can test the reward" />
           <div className="row">
             <div><label>Price per view (USDC)</label><input type="number" step="0.01" min="0.01" value={form.price_per_view} onChange={set("price_per_view")} /></div>
             <div><label>Budget (USDC)</label><input type="number" step="0.1" min="0.1" value={form.budget} onChange={set("budget")} /></div>

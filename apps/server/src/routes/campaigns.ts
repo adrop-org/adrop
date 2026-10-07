@@ -18,6 +18,7 @@ const CreateBody = z.object({
   freq_cap: z.number().int().min(1).max(255).default(1),
   creative: z.object({ image_url: z.string().url(), title: z.string().min(1).max(80), cta_url: z.string().url() }),
   budget: z.number().int().positive(),
+  test_wallets: z.array(pubkey).max(5).default([]), // devnet demo only: keep only these registered wallets in the snapshot (hq ADR-0007)
 });
 const hex = (b: Uint8Array) => Buffer.from(b).toString("hex");
 
@@ -30,7 +31,9 @@ export function campaignRoutes({ db, chain, x402, usdcMint, baseUrl }: CampaignD
     try {
       const b = CreateBody.parse(req.body);
       if (b.budget < b.price_per_view) return res.status(400).json({ error: "budget_below_price" });
-      const members = await segmentLeaves(b.tags, db, chain);
+      const all = await segmentLeaves(b.tags, db, chain);
+      const members = b.test_wallets.length ? all.filter((m) => b.test_wallets.includes(m.wallet)) : all;
+      if (b.test_wallets.length && members.length === 0) return res.status(400).json({ error: "test_wallets_not_registered" });
       const root = merkleRoot(members.map((m) => m.leaf));
       // Next free id: the DB may be fresh while campaigns already exist on-chain.
       let id = (db.prepare("SELECT COALESCE(MAX(id), 0) + 1 AS id FROM campaigns").get() as { id: number }).id;
