@@ -1,0 +1,39 @@
+# Push to main: publish the public mirrors on GitHub (hq ADR-0011). Needs org secret GITHUB_MIRROR_TOKEN
+# (hq scripts/github-mirror-secret.sh). The monorepo is the source; the mirrors are never committed to directly.
+#   adrop-org/adrop          = this repo, main
+#   adrop-org/adrop-sdk      = git subtree split of packages/sdk
+#   adrop-org/adrop-program  = programs/ + Anchor workspace files, one commit per monorepo change
+name: mirror
+on:
+  push:
+    branches: [main]
+jobs:
+  mirror:
+    runs-on: docker
+    container: { image: alpine/git:2.47.2 }
+    steps:
+      - name: Clone main with history
+        env:
+          GIT_USERNAME: ${{ github.actor }}
+          GIT_PASSWORD: ${{ github.token }}
+        run: |
+          git clone -q "https://$GIT_USERNAME:$GIT_PASSWORD@git.janbo.internal/$GITHUB_REPOSITORY.git" src
+          cd src && git checkout -q "$GITHUB_SHA"
+      - name: Push mirrors
+        env:
+          TOKEN: ${{ secrets.GITHUB_MIRROR_TOKEN }}
+        run: |
+          [ -n "$TOKEN" ] || { echo "GITHUB_MIRROR_TOKEN unset (hq scripts/github-mirror-secret.sh)"; exit 1; }
+          cd src
+          gh() { echo "https://x-access-token:$TOKEN@github.com/adrop-org/$1.git"; }
+          git push -q "$(gh adrop)" "HEAD:refs/heads/main"
+          split=$(git subtree split --prefix=packages/sdk HEAD)
+          git push -q --force "$(gh adrop-sdk)" "$split:refs/heads/main"
+          sha=$(git rev-parse --short HEAD)
+          rm -rf /tmp/program && git clone -q "$(gh adrop-program)" /tmp/program 2>/dev/null || { git init -q -b main /tmp/program; }
+          find /tmp/program -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          git archive HEAD programs Anchor.toml Cargo.toml Cargo.lock rust-toolchain.toml tests LICENSE NOTICE | tar -x -C /tmp/program
+          cp programs/README.md /tmp/program/README.md
+          cd /tmp/program && git add -A
+          git -c user.name=adrop-ci -c user.email=ci@adrop.sh commit -qm "mirror: adrop-org/adrop@$sha" || echo "program: no change"
+          git push -q "$(gh adrop-program)" HEAD:main
