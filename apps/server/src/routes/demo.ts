@@ -17,7 +17,8 @@ export function demoRoutes({ baseUrl, rpcUrl, mintSgt, db }: { baseUrl: string; 
       const secret = process.env.X402_DEMO_SECRET;
       if (!secret) return res.status(503).json({ error: "demo_agent_not_configured" });
       const signer = await createKeyPairSignerFromBytes(Uint8Array.from(JSON.parse(secret)));
-      const pay = wrapFetchWithPaymentFromConfig(fetch, { schemes: [{ network: X402_NETWORK_DEVNET, client: new ExactSvmScheme(signer, { rpcUrl }) }] });
+      // The client library caps a payment at $1 by default; the demo wallet pays any campaign budget (devnet USDC).
+      const pay = wrapFetchWithPaymentFromConfig(fetch, { schemes: [{ network: X402_NETWORK_DEVNET, client: new ExactSvmScheme(signer, { rpcUrl }) }], spendControls: false });
       const out = await pay(`${baseUrl}/campaigns/${Number(req.params.id)}/fund`, { method: "POST" });
       res.status(out.status).json(await out.json());
     } catch (e) { next(e); }
