@@ -5,7 +5,9 @@ from this repository (`packages/sdk`, `pnpm build`); npm publication follows the
 
 ## What you need
 - A **host USDC account** (`hostAta`): the associated token account of your app's wallet for the USDC mint.
-  20% of every view served in your app lands there.
+  20% of every view served in your app lands there. The server pays only host accounts it knows
+  (`400 unknown_host` otherwise); during the hackathon, ask us to add yours or use the demo host's
+  `GYs2Ucn7MDE27VBiN4PU2MHZfVmM24ivD2FaJVX7RoyE` to try the flow.
 - A **wallet** that can `signMessage` and `signTransaction` (any Solana wallet adapter works).
 - The Adrop server base URL (`apiBase`). Devnet: `https://api.adrop.sh`.
 
