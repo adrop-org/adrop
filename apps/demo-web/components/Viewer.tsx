@@ -32,6 +32,7 @@ export function Viewer() {
 
   useEffect(() => {
     if (!wallet.publicKey || !wallet.signMessage || !wallet.signTransaction) { sdk.current = null; setIdentity(null); return; }
+    // Mirrors the "Minimal integration" snippet in packages/sdk/README.md; the adapter already has the wallet shape the SDK needs.
     sdk.current = Adrop.init({ apiBase: API_BASE, hostAta: HOST_ATA, wallet: { publicKey: wallet.publicKey, signMessage: wallet.signMessage, signTransaction: wallet.signTransaction } })
       .onError((e) => setError(`${e.code}: ${e.message}`));
     fetch(`${API_BASE}/identity/${wallet.publicKey.toBase58()}`).then((r) => r.json()).then(setIdentity).catch(() => {});
