@@ -70,8 +70,9 @@ describe("campaigns", () => {
 });
 
 describe("test_wallets (devnet demo)", () => {
-  it("keeps only the named registered wallets in the snapshot", async () => {
-    const r = await request(app).post("/campaigns").send({ ...body, tags: [], test_wallets: [ids[1].owner, w()] });
+  it("the named registered wallets are the audience, even outside the tag's segment", async () => {
+    // ids[1] is registered but not in dex_swap_30d
+    const r = await request(app).post("/campaigns").send({ ...body, tags: ["dex_swap_30d"], test_wallets: [ids[1].owner, w()] });
     expect(r.status).toBe(201);
     expect(r.body.reachable).toBe(1);
   });

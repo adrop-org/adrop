@@ -45,7 +45,7 @@ export function Advertiser() {
             <option value="dex_swap_30d">Targeted: dex_swap_30d (verified humans active on a DEX in 30 days) · suggested $0.50–1.00</option>
             <option value="">Untargeted: every verified human · suggested $0.10–0.25</option>
           </select>
-          <label>Test audience (devnet demo only): up to 5 wallet addresses, one per line. Only these registered wallets will see the ad. Leave empty for the real audience above.</label>
+          <label>Test audience (devnet demo only): up to 5 wallet addresses, one per line. These registered wallets become the audience, whatever is selected above (they must have opted in first). Leave empty for the real audience.</label>
           <textarea rows={3} value={form.test_wallets} onChange={set("test_wallets")} placeholder="your wallet, so you can test the reward" />
           <div className="row">
             <div><label>Price per view (USDC)</label><input type="number" step="0.01" min="0.01" value={form.price_per_view} onChange={set("price_per_view")} /></div>
