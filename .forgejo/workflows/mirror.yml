@@ -1,4 +1,4 @@
-# Push to main: publish the public mirrors on GitHub (hq ADR-0011). Needs org secret GITHUB_MIRROR_TOKEN
+# Push to main: publish the public mirrors on GitHub (hq ADR-0011). Needs org secret MIRROR_GITHUB_TOKEN
 # (hq scripts/github-mirror-secret.sh). The monorepo is the source; the mirrors are never committed to directly.
 #   adrop-org/adrop          = this repo, main
 #   adrop-org/adrop-sdk      = git subtree split of packages/sdk
@@ -21,9 +21,9 @@ jobs:
           cd src && git checkout -q "$GITHUB_SHA"
       - name: Push mirrors
         env:
-          TOKEN: ${{ secrets.GITHUB_MIRROR_TOKEN }}
+          TOKEN: ${{ secrets.MIRROR_GITHUB_TOKEN }}
         run: |
-          [ -n "$TOKEN" ] || { echo "GITHUB_MIRROR_TOKEN unset (hq scripts/github-mirror-secret.sh)"; exit 1; }
+          [ -n "$TOKEN" ] || { echo "MIRROR_GITHUB_TOKEN unset (hq scripts/github-mirror-secret.sh)"; exit 1; }
           cd src
           gh() { echo "https://x-access-token:$TOKEN@github.com/adrop-org/$1.git"; }
           git push -q "$(gh adrop)" "HEAD:refs/heads/main"
