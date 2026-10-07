@@ -56,9 +56,10 @@ export const fakeFacilitator: FacilitatorClient = {
   settle: async () => ({ success: true, transaction: "settle-tx", network: NETWORK, payer: "x" }),
 };
 
+export const HOST_ATA = Keypair.generate().publicKey.toBase58();
 export const testDeps = (identities: IdentityRow[] = []) => {
   const { chain, calls, campaigns } = fakeChain(identities);
   const db = openDb(":memory:");
   const x402 = new X402({ facilitator: fakeFacilitator, network: NETWORK, usdcMint: USDC, payTo: FEE_PAYER.toBase58() });
-  return { chain, calls, campaigns, db, x402, usdcMint: USDC, baseUrl: "http://test", treasuryAta: Keypair.generate().publicKey.toBase58(), globalDailyCap: 2 };
+  return { chain, calls, campaigns, db, x402, usdcMint: USDC, baseUrl: "http://test", treasuryAta: Keypair.generate().publicKey.toBase58(), globalDailyCap: 2, hostAtas: [HOST_ATA] };
 };

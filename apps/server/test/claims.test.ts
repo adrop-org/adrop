@@ -3,7 +3,7 @@ import { Keypair, Transaction } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { sign } from "../src/ed25519.js";
-import { identity, testDeps } from "./fakes.js";
+import { HOST_ATA, identity, testDeps } from "./fakes.js";
 
 const viewer = Keypair.generate();
 const other = Keypair.generate();
@@ -11,7 +11,7 @@ const ids = [identity(viewer.publicKey.toBase58()), identity(other.publicKey.toB
 let clock = 1_700_000_000_000;
 const deps = testDeps(ids);
 const app = createApp({ ...deps, now: () => clock, helius: { findSgt: async () => null }, sgtGroup: "x" });
-const hostAta = Keypair.generate().publicKey.toBase58();
+const hostAta = HOST_ATA;
 const creative = { image_url: "https://x.test/a.png", title: "Hi", cta_url: "https://x.test" };
 const attention = (issued: number) => ({ visible_ms: 3500, max_visibility: 0.9, focused: true, pointer_event_ts: issued + 3600, scroll_before_click: true });
 const signNonce = (kp: Keypair, nonce: string) => Buffer.from(sign(Buffer.from(nonce, "utf8"), kp.secretKey)).toString("base64");
@@ -57,6 +57,25 @@ describe("impressions and claims", () => {
     const r = await impression(); // freq_cap 1 on campaign 1 -> no campaign
     expect(r.status).toBe(404);
     expect(r.body.error).toBe("no_campaign");
+  });
+
+  it("rejects a host account that is not allow-listed (MF-1)", async () => {
+    const r = await request(app).post("/impressions").send({ identity_wallet: viewer.publicKey.toBase58(), host_ata: Keypair.generate().publicKey.toBase58() });
+    expect(r.status).toBe(400);
+    expect(r.body.error).toBe("unknown_host");
+  });
+
+  it("rejects a claim before min_dwell_ms has elapsed since issue (MF-2)", async () => {
+    deps.db.prepare("UPDATE campaigns SET freq_cap = 5").run();
+    const imp = await impression();
+    expect(imp.status).toBe(201);
+    const issued = clock; clock += 1000;
+    const r = await request(app).post("/claims").send({ impression_id: imp.body.impression_id, nonce: imp.body.nonce, attention: attention(issued), wallet_signature_of_nonce: signNonce(viewer, imp.body.nonce) });
+    expect(r.status).toBe(422);
+    expect(r.body.checks).toEqual(["elapsed"]);
+    clock += 3000;
+    const ok = await request(app).post("/claims").send({ impression_id: imp.body.impression_id, nonce: imp.body.nonce, attention: attention(issued), wallet_signature_of_nonce: signNonce(viewer, imp.body.nonce) });
+    expect(ok.status).toBe(200);
   });
 
   it("rejects failed attention, bad signature, reused nonce and expiry", async () => {

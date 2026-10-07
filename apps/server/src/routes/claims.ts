@@ -9,7 +9,8 @@ import type { ChainLike } from "../chain.js";
 import { sha256 } from "../chain.js";
 import { verify } from "../ed25519.js";
 
-export type ClaimDeps = { db: Db; chain: ChainLike; usdcMint: string; treasuryAta: string; globalDailyCap: number; now?: () => number };
+// hostAtas: the host USDC accounts this server pays (MF-1). The client names one; the server only accepts these.
+export type ClaimDeps = { db: Db; chain: ChainLike; usdcMint: string; treasuryAta: string; globalDailyCap: number; hostAtas: string[]; now?: () => number };
 
 export const NONCE_TTL_MS = 10 * 60_000;
 const pubkey = z.string().refine((s) => { try { new PublicKey(s); return true; } catch { return false; } }, "invalid pubkey");
@@ -24,7 +25,7 @@ const Attention = z.object({
   scroll_before_click: z.boolean().optional(),
 });
 
-export function claimRoutes({ db, chain, usdcMint, treasuryAta, globalDailyCap, now = Date.now }: ClaimDeps) {
+export function claimRoutes({ db, chain, usdcMint, treasuryAta, globalDailyCap, hostAtas, now = Date.now }: ClaimDeps) {
   const r = Router();
   const mint = new PublicKey(usdcMint);
   const treasury = new PublicKey(treasuryAta);
@@ -43,6 +44,7 @@ export function claimRoutes({ db, chain, usdcMint, treasuryAta, globalDailyCap, 
   r.post("/impressions", async (req, res, next) => {
     try {
       const b = z.object({ identity_wallet: pubkey, host_ata: pubkey, campaign_id: z.number().int().positive().optional() }).parse(req.body);
+      if (!hostAtas.includes(b.host_ata)) return res.status(400).json({ error: "unknown_host" });
       const id = await chain.findIdentityByOwner(new PublicKey(b.identity_wallet));
       if (!id) return res.status(404).json({ error: "not_registered" });
       const t = now();
@@ -81,6 +83,7 @@ export function claimRoutes({ db, chain, usdcMint, treasuryAta, globalDailyCap, 
       const a = b.attention;
       const failed = [
         a.visible_ms < c.min_dwell_ms && "dwell",
+        t - row.issued_at < c.min_dwell_ms && "elapsed",
         a.max_visibility < 0.5 && "visibility",
         !a.focused && "focus",
         (a.pointer_event_ts < row.issued_at || a.pointer_event_ts > t + 5_000) && "pointer",

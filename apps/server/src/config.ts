@@ -11,6 +11,7 @@ const Env = z.object({
   X402_NETWORK: z.string().default(X402_NETWORK_DEVNET),
   USDC_MINT: z.string().default(USDC_MINT_DEVNET),
   PROTOCOL_TREASURY: z.string().min(32),
+  HOST_ATAS: z.string().min(32).transform((s) => s.split(",").map((x) => x.trim()).filter(Boolean)),
   DATABASE_URL: z.string().default("./data/adrop.sqlite"),
   PORT: z.coerce.number().default(3000),
 });
