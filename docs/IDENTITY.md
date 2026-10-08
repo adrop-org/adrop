@@ -40,6 +40,16 @@ the same two extensions, pointing at a group Adrop controls. The only difference
 and mainnet is that group address in the program config. For a test wallet, the project team
 mints one mock token once; see the README for the command.
 
+## Closed audiences (roadmap)
+
+A proof of personhood is required for *open* audiences: untargeted campaigns and behaviour
+segments, where anyone who can create wallets could otherwise drain the escrow. It is not
+required for a *closed* list, where the advertiser brings the wallets it already holds (its own
+users, or a list it bought) and bears the sybil risk itself. Adrop learns such a list only to
+build the campaign's Merkle root and never hands wallets to anyone; advertisers get counts,
+delivery and spend. The list-only registration path and the `proof_type` value for it are
+roadmap; today every earning identity holds a proof.
+
 ## What is not a proof
 
 Email, phone number or a social login alone. Ad-fraud operations hold those in bulk, and the
