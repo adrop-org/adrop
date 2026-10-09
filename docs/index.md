@@ -1,12 +1,13 @@
 # What is Adrop
 
-Adrop is a rewarded-ads SDK that pays the viewer. An app drops it in; users opt in with a wallet
-signature and a proof of personhood; every *qualified view* of an ad pays the viewer in USDC straight
-from the campaign's escrow, split 70% viewer, 20% host app, 10% protocol. Advertisers, human or AI
-agent, fund campaigns with one HTTP request over [x402](https://x402.org).
+Adrop is the plug-in ad network for Web3 apps. A host app drops in the SDK; an agency funds one
+campaign and it reaches every app on the network. Users opt in with a wallet signature and a proof of
+personhood; every *qualified view* pays the person and the host app in USDC straight from the campaign's
+escrow (devnet split 70% viewer, 20% host app, 10% protocol). Agencies, human or AI agent, fund
+campaigns with one HTTP request over [x402](https://x402.org).
 
 - **No token.** Payouts are USDC, on-chain, one transaction per view.
-- **No wallet lists.** Advertisers buy verified reach by on-chain behaviour; they never receive addresses.
+- **No wallet lists.** Agencies buy verified reach by on-chain behaviour; they never receive addresses.
 - **One human, one identity.** A proof of personhood (today the Seeker Genesis Token) gates every earner.
   See [Identity](IDENTITY.md).
 - **Chain-agnostic by design.** Solana first; the proof, the chain and the platform are pluggable.

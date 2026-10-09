@@ -1,11 +1,11 @@
 # Adrop
 
-Rewarded ads that pay the viewer. An app drops in the Adrop SDK; users opt in with a wallet
-signature and a proof of personhood (on Solana, the Seeker Genesis Token); every qualified ad
-view pays the viewer in USDC straight from the campaign's escrow, split 70% viewer, 20% host
-app, 10% protocol. Advertisers, human or AI agent, fund campaigns with one HTTP request over
-[x402](https://x402.org). No token, no wallet lists: advertisers buy verified reach, never
-addresses.
+The plug-in ad network for Web3 apps. A host app adds one line of code; an agency funds one
+campaign and it reaches every app on the network. Users opt in with a wallet signature and a
+proof of personhood (on Solana, the Seeker Genesis Token); every qualified view pays the person
+and the host app in USDC straight from the campaign's escrow (devnet split 70% viewer, 20% host,
+10% protocol). Agencies, human or AI agent, fund campaigns with one HTTP request over
+[x402](https://x402.org). No token, no wallet lists: buyers get verified reach, never addresses.
 
 Built for the Colosseum Crypto World's Fair, October 2026. Solana devnet.
 Docs: [docs.adrop.sh](https://docs.adrop.sh) (source in `docs/`). Demo: [demo.adrop.sh](https://demo.adrop.sh).
