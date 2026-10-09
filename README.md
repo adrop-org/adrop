@@ -8,7 +8,8 @@ and the host app in USDC straight from the campaign's escrow (devnet split 70% v
 [x402](https://x402.org). No token, no wallet lists: buyers get verified reach, never addresses.
 
 Built for the Colosseum Crypto World's Fair, October 2026. Solana devnet.
-Docs: [docs.adrop.sh](https://docs.adrop.sh) (source in `docs/`). Demo: [demo.adrop.sh](https://demo.adrop.sh).
+Website: [adrop.sh](https://adrop.sh). Docs: [docs.adrop.sh](https://docs.adrop.sh) (source in `docs/`). Demo: [demo.adrop.sh](https://demo.adrop.sh).
+X: [@AdropProtocol](https://x.com/AdropProtocol).
 
 ## Architecture
 ```mermaid
