@@ -8,7 +8,7 @@ import { API_BASE, HOST_ATA, explorer } from "../lib/config";
 type Created = { campaign_id: number; escrow_ata: string; segment_root: string; reachable: number; create_tx: string; fund_url: string };
 
 export function Advertiser() {
-  const [form, setForm] = useState({ advertiser: "", title: "Try Adrop", image_url: "https://placehold.co/600x400/png", cta_url: "https://example.com", price_per_view: 0.1, budget: 1, freq_cap: 1, audience: "dex_swap_30d", test_wallets: "" });
+  const [form, setForm] = useState({ advertiser: "", title: "Try Adrop", image_url: "https://docs.adrop.sh/brand/title-card.png", cta_url: "https://example.com", price_per_view: 0.1, budget: 1, freq_cap: 1, audience: "dex_swap_30d", test_wallets: "" });
   const [created, setCreated] = useState<Created | null>(null);
   const [status, setStatus] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
