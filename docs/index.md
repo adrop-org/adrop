@@ -6,6 +6,11 @@ personhood; every *qualified view* pays the person and the host app in USDC stra
 escrow (devnet split 70% viewer, 20% host app, 10% protocol). Agencies, human or AI agent, fund
 campaigns with one HTTP request over [x402](https://x402.org).
 
+> **Prototype.** Built for the Colosseum Crypto World's Fair (October 2026) on Solana devnet. Not for production use.
+> The payment architecture will change: today campaign money sits in an on-chain escrow program. The next design is under
+> research and may drop the escrow, with Adrop invoicing the agency and paying host apps and viewers itself. Interfaces, the
+> program and the splits may all change.
+
 - **No token.** Payouts are USDC, on-chain, one transaction per view.
 - **No wallet lists.** Agencies buy verified reach by on-chain behaviour; they never receive addresses.
 - **One human, one identity.** A proof of personhood (today the Seeker Genesis Token) gates every earner.

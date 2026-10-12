@@ -7,7 +7,11 @@ and the host app in USDC straight from the campaign's escrow (devnet split 70% v
 10% protocol). Agencies, human or AI agent, fund campaigns with one HTTP request over
 [x402](https://x402.org). No token, no wallet lists: buyers get verified reach, never addresses.
 
-Built for the Colosseum Crypto World's Fair, October 2026. Solana devnet.
+> **Prototype.** Built for the Colosseum Crypto World's Fair (October 2026) on Solana devnet. Not for production use.
+> The payment architecture will change: today campaign money sits in an on-chain escrow program. The next design is under
+> research and may drop the escrow, with Adrop invoicing the agency and paying host apps and viewers itself. Interfaces, the
+> program and the splits may all change.
+
 Website: [adrop.sh](https://adrop.sh). Docs: [docs.adrop.sh](https://docs.adrop.sh) (source in `docs/`). Demo: [demo.adrop.sh](https://demo.adrop.sh).
 X: [@AdropProtocol](https://x.com/AdropProtocol).
 
