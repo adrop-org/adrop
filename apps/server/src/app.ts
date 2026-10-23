@@ -4,8 +4,9 @@ import { identityRoutes, type IdentityDeps } from "./routes/identity.js";
 import { campaignRoutes, type CampaignDeps } from "./routes/campaigns.js";
 import { demoRoutes } from "./routes/demo.js";
 import { claimRoutes, type ClaimDeps } from "./routes/claims.js";
+import { consoleRoutes, type ConsoleDeps } from "./routes/console.js";
 
-export type AppDeps = IdentityDeps & CampaignDeps & ClaimDeps & { rpcUrl?: string; mintSgt?: (wallet: string) => Promise<string> };
+export type AppDeps = IdentityDeps & CampaignDeps & ClaimDeps & Partial<Pick<ConsoleDeps, "demoCampaignId" | "demoAdvertiser">> & { rpcUrl?: string; mintSgt?: (wallet: string) => Promise<string> };
 
 export function createApp(deps: AppDeps) {
   const app = express();
@@ -26,6 +27,7 @@ export function createApp(deps: AppDeps) {
   app.use(campaignRoutes(deps));
   app.use(claimRoutes(deps));
   app.use(demoRoutes(deps));
+  app.use(consoleRoutes(deps));
   const onError: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) return res.status(400).json({ error: "bad_request", issues: err.issues });
     console.error(err);
