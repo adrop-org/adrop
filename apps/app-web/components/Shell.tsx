@@ -9,7 +9,7 @@ export function Header() {
   return (
     <header className="header">
       <a href="/" className="brand" aria-label="adrop console"><Wordmark /></a>
-      <div className="right"><span className="badge">Solana devnet</span><WalletMultiButton /></div>
+      <div className="right"><span className="badge">Solana devnet</span><WalletMultiButton>Connect wallet</WalletMultiButton></div>
     </header>
   );
 }
