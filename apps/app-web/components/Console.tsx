@@ -33,10 +33,11 @@ export function Console() {
     <div className="shell">
       <Header />
       <main className="main">
+        <p className="small mute eyebrow">Demo · Solana devnet · network numbers are sample, payouts are real</p>
         <h1 className="headline">Push one campaign into every <em>app</em> in the network.</h1>
         <div className="strip">
           <div className="tiles">
-            <div className="tile"><span className="label">Apps in the network{stats?.sample && <span className="pill pill-sample" style={{ marginLeft: 8 }}>sample</span>}</span><span className="value">{stats ? fmt(stats.apps) : "…"}</span></div>
+            <div className="tile"><span className="label">Apps in the network</span><span className="value">{stats ? fmt(stats.apps) : "…"}</span></div>
             <div className="tile"><span className="label">Verified people</span><span className="value">{stats ? fmt(stats.people) : "…"}</span></div>
             <div className="tile"><span className="label">Views paid this week</span><span className="value" style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>{stats ? fmt(stats.views_week) : "…"}<i aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--coin)" }} /></span></div>
           </div>
