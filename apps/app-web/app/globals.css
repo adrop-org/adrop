@@ -210,6 +210,7 @@ button { font-family: inherit; }
 .btn-ghost { background: transparent; color: var(--mute); }
 .list { display: flex; flex-direction: column; gap: 12px; }
 .list-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.list-more { align-self: center; }
 .list-head h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
 .campaign { appearance: none; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--line); border-radius: var(--r-card); padding: 14px; background: transparent; text-align: left; color: var(--fg); width: 100%; cursor: pointer; }
 .campaign[aria-pressed="true"] { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg); }
