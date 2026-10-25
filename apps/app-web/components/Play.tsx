@@ -145,7 +145,7 @@ export function Play() {
               <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}><span className="small mute">Paid to {wallet.publicKey ? short(wallet.publicKey.toBase58()) : "you"}</span><span className="paid-amt">{money(viewerAmt, true)}<i className="paid-pulse" aria-hidden /></span></div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <span className="label">Who gets paid · on a {money(price, true)} view</span>
+              <span className="label">Who gets paid · on a {money(price, true)} view · target split</span>
               <SplitBar bps={split} height={16} />
               <div className="split-numbers">
                 <div><span className="n">{money(viewerAmt, true)}</span><span className="who">You</span><span className="role">viewer · {split.viewer / 100}%</span></div>

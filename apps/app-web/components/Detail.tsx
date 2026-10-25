@@ -42,7 +42,7 @@ export function Detail({ campaign: c, split = SPLIT, onNew, analyticsOnly }: { c
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <span className="small mute">Every {money(price, true)} view · viewers {split.viewer / 100}% · apps {split.host / 100}% · protocol {split.protocol / 100}%</span>
+        <span className="small mute">Every {money(price, true)} view · target split · viewers {split.viewer / 100}% · apps {split.host / 100}% · protocol {split.protocol / 100}%</span>
         <SplitBar bps={split} />
         <div className="legend"><span><i style={{ background: "var(--coin)" }} />Viewers {money(shares.viewer, true)}</span><span><i style={{ background: "var(--fg)" }} />Apps {money(shares.host, true)}</span><span><i style={{ background: "var(--tint)" }} />Protocol {money(shares.protocol, true)}</span></div>
       </div>
@@ -72,9 +72,7 @@ export function Detail({ campaign: c, split = SPLIT, onNew, analyticsOnly }: { c
         <dt>Escrow</dt><dd>{c.escrow ? <>{short(c.escrow)} · <a className="mute" href={explorer(c.escrow, "address")} target="_blank" rel="noreferrer">on devnet ↗</a></> : "—"}</dd>
       </dl>
       <div className="detail-actions">
-        <button className="btn" disabled title="Next: top up the same escrow">Top up escrow</button>
-        <button className="btn btn-secondary" disabled title="Next: pause a campaign">Pause</button>
-        {onNew && <button className="btn btn-ghost" style={{ marginLeft: "auto" }} onClick={onNew}>New campaign</button>}
+                {onNew && <button className="btn btn-ghost" style={{ marginLeft: "auto" }} onClick={onNew}>New campaign</button>}
       </div>
     </section>
   );

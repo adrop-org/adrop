@@ -8,6 +8,9 @@ import { Footer, Header } from "./Shell";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 const LIST_ROWS = 5;
+const ORDER = { Active: 0, Exhausted: 1, Draft: 2 };
+// Funded campaigns first, most spent on top; unfunded drafts only under "Show all".
+const rank = (a: Campaign, b: Campaign) => Number(!!a.sample) - Number(!!b.sample) || ORDER[a.status] - ORDER[b.status] || b.spent - a.spent || b.id - a.id;
 
 export function Console() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -15,11 +18,16 @@ export function Console() {
   const [showAll, setShowAll] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [view, setView] = useState<"composer" | "detail">("composer");
-  const reload = () => loadConsole().then((r) => { setStats(r.stats); setCampaigns(r.campaigns); setSelected((s) => s ?? r.campaigns[0]?.id ?? null); });
+  const reload = () => loadConsole().then((r) => {
+    const list = [...r.campaigns].sort(rank);
+    setStats(r.stats); setCampaigns(list);
+    setSelected((s) => s ?? r.stats.demo_campaign_id ?? list[0]?.id ?? null);
+  });
   useEffect(() => { reload(); }, []);
   const sel = campaigns.find((c) => c.id === selected) ?? campaigns[0];
   const active = campaigns.filter((c) => c.status === "Active").length;
-  const shown = showAll ? campaigns : campaigns.slice(0, LIST_ROWS);
+  const funded = campaigns.filter((c) => c.status !== "Draft" || c.id === selected);
+  const shown = showAll ? campaigns : funded.slice(0, LIST_ROWS);
 
   return (
     <div className="shell">
@@ -28,7 +36,7 @@ export function Console() {
         <h1 className="headline">Push one campaign into every <em>app</em> in the network.</h1>
         <div className="strip">
           <div className="tiles">
-            <div className="tile"><span className="label">Apps in the network</span><span className="value">{stats ? fmt(stats.apps) : "…"}</span></div>
+            <div className="tile"><span className="label">Apps in the network{stats?.sample && <span className="pill pill-sample" style={{ marginLeft: 8 }}>sample</span>}</span><span className="value">{stats ? fmt(stats.apps) : "…"}</span></div>
             <div className="tile"><span className="label">Verified people</span><span className="value">{stats ? fmt(stats.people) : "…"}</span></div>
             <div className="tile"><span className="label">Views paid this week</span><span className="value" style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>{stats ? fmt(stats.views_week) : "…"}<i aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--coin)" }} /></span></div>
           </div>
@@ -56,7 +64,7 @@ export function Console() {
                   </span>
                 </button>
               ))}
-              {campaigns.length > LIST_ROWS && (
+              {campaigns.length > shown.length && (
                 <button className="btn btn-ghost list-more" onClick={() => setShowAll((v) => !v)}>
                   {showAll ? "Show fewer" : `Show all ${campaigns.length}`}
                 </button>

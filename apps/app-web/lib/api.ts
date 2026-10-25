@@ -1,4 +1,4 @@
-import { API_BASE } from "./config";
+import { API_BASE, CONSOLE_CAMPAIGNS } from "./config";
 import { AUDIENCES, mockActivity, mockCampaigns, mockStats } from "./mock";
 
 export type Split = { viewer: number; host: number; protocol: number };
@@ -21,11 +21,14 @@ export function toCampaign(c: any): Campaign {
   return { id: c.id, title: c.creative?.title ?? `Campaign ${c.id}`, status, spent, budget, today: c.views_today ?? 0, reach: c.reachable ?? 0, img: c.creative?.image_url ?? "", link: c.creative?.cta_url ?? "", audience: audienceOf(c.tags ?? [], c.price_per_view), floor: c.price_per_view / 1e6, freq: c.freq_cap ?? 1, escrow: c.escrow_ata ?? "" };
 }
 
-/** Live rows first, sample rows after them, so the console is never empty. */
+const curated = (c: Campaign) => CONSOLE_CAMPAIGNS.includes(c.id) || c.id > Math.max(...CONSOLE_CAMPAIGNS);
+
+/** Curated live rows; sample rows only when there are none. Network tiles stay sample until the network is real (owner, 2026-10-25). */
 export async function loadConsole(): Promise<{ stats: Stats; campaigns: Campaign[]; online: boolean }> {
   try {
     const [stats, list] = await Promise.all([get<Stats>("/stats"), get<any[]>("/campaigns")]);
-    return { stats, campaigns: [...list.map(toCampaign), ...mockCampaigns], online: true };
+    const campaigns = list.map(toCampaign).filter(curated);
+    return { stats: { ...stats, apps: mockStats.apps, people: mockStats.people, views_week: mockStats.views_week, sample: true }, campaigns: campaigns.length ? campaigns : mockCampaigns, online: true };
   } catch { return { stats: mockStats, campaigns: mockCampaigns, online: false }; }
 }
 
