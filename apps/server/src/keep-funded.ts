@@ -16,7 +16,7 @@ export function keepFunded(o: KeepFundedOpts) {
   const f = o.fetch ?? fetch, log = o.log ?? ((s) => console.log(`keep-funded: ${s}`));
   const mint = new PublicKey(o.usdcMint);
   const creative = o.creative ?? { image_url: "https://docs.adrop.sh/brand/title-card.png", title: "Ads that pay the viewer.", cta_url: "https://adrop.sh" };
-  const mine = o.db.prepare("SELECT id, price_per_view FROM campaigns WHERE advertiser = ? AND tags = '[]' AND status = 'active' ORDER BY id DESC");
+  const mine = o.db.prepare("SELECT id, price_per_view FROM campaigns WHERE advertiser = ? AND tags = '[]' AND status = 'active' ORDER BY price_per_view DESC, id DESC");
   let current: number | undefined;
 
   async function usable(): Promise<number | undefined> {
