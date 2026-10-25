@@ -7,16 +7,19 @@ import { Detail } from "./Detail";
 import { Footer, Header } from "./Shell";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
+const LIST_ROWS = 5;
 
 export function Console() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [showAll, setShowAll] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [view, setView] = useState<"composer" | "detail">("composer");
   const reload = () => loadConsole().then((r) => { setStats(r.stats); setCampaigns(r.campaigns); setSelected((s) => s ?? r.campaigns[0]?.id ?? null); });
   useEffect(() => { reload(); }, []);
   const sel = campaigns.find((c) => c.id === selected) ?? campaigns[0];
   const active = campaigns.filter((c) => c.status === "Active").length;
+  const shown = showAll ? campaigns : campaigns.slice(0, LIST_ROWS);
 
   return (
     <div className="shell">
@@ -43,7 +46,7 @@ export function Console() {
           <aside className="col-side" aria-label="Campaigns and analytics">
             <div className="list">
               <div className="list-head"><h2>Campaigns</h2><span className="small mute">{campaigns.length} · {active} active</span></div>
-              {campaigns.map((c) => (
+              {shown.map((c) => (
                 <button key={c.id} className="campaign" aria-pressed={c.id === sel?.id} onClick={() => { setSelected(c.id); setView("detail"); }}>
                   {c.img ? <img className="thumb" src={c.img} alt="" /> : <span className="thumb" aria-hidden />}
                   <span className="body">
@@ -53,6 +56,11 @@ export function Console() {
                   </span>
                 </button>
               ))}
+              {campaigns.length > LIST_ROWS && (
+                <button className="btn btn-ghost list-more" onClick={() => setShowAll((v) => !v)}>
+                  {showAll ? "Show fewer" : `Show all ${campaigns.length}`}
+                </button>
+              )}
             </div>
             {sel && <Detail campaign={sel} analyticsOnly />}
           </aside>
